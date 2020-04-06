@@ -1,0 +1,19 @@
+check figure 5 - the data in stacked and unstacked seem to be different. DONE
+
+
+figure 7 use both figures, numbers and proportion, put in same figure. labelled with A and B
+
+characerisation y, n, o, figure 6 horizontal bart chart like figure 4.
+
+figure 8.
+
+
+figure  functionality and number of papers.
+
+figurex3 79a is a ISCT marker! Viability isn't a marker
+change the annotation for a key
+
+figure 9 papers by mention, performed, not stated. data incoming. two figures - one of markers and one for not markers. Use different colur palettes, or different figures.
+
+marker values figure : colour by marker so the different points can be seen, get rid of dashed lines.flip coordinates, all amrkers on same figure is poss. sd and se info coming.
+

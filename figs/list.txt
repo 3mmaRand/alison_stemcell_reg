@@ -1,0 +1,22 @@
+yes - fig_1_Article_search_funnel.tif
+yes - fig_3_Article_country.tif 
+yes - fig_4_Article_phase_3.tif 
+yes - fig_4_Article_phase.tif 
+yes - fig_5_Article_source_year.tif 
+yes - fig_5_Article_source_year_stack.tif 
+yes - fig_7_Article_phase_test_quality_by_PC.tif 
+yes - fig_x_moa_isct_blues.tif  
+yes - fig_x2_moa_potency_blues.tif 
+README.txt
+recode_differentiation_capacity.png
+Thumbs.db
+
+
+figure 9 data incoming
+make ns not st
+do actual numbers of articles not proportions reported.
+
+
+actual values - distribution. data incoming
+
+14 studeis that referenced ict criteria. 

@@ -1,0 +1,1606 @@
+---
+title: 'Characterisation of MSC in clinical trial reports: analysis of published descriptors'
+author: "Emma Rand"
+date: "16/01/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+# Figures specification
+* titled
+* cited in numerical order in the text using Arabic numbers. 
+* no additional charges for color. 
+* submitted as individual files
+* labeled with the Corresponding Author name, the appropriate figure number, and  orientation (e.g., “top”)
+* Figures may be submitted as multipart panels.
+*  *.tif* or .eps 
+* final publication size; 1-column width or, if necessary, 1½ column width. The * 2-column width should not be used unless necessary.
+* 1.0 column = 3.2 Inches, 8.2 Centimeters, 19.25 Picas
+* 1.5 column = 4.5 Inches, 11.4 Centimeters, 27.00 Picas
+* 2.0 column = 5.8 Inches, 14.8 Centimeters, 35.00 Picas
+* height of all figures <= to 9.6inches / 24.5 cm / 58 picas.
+* Calibri font sub sans serif Arial
+* Multipanel labeled using uppercase 12-point Calibri Bold. 
+* minimum text size of 6 points
+* bold enough to be easily read after reduction, as should all symbols used in the * figure. Line or bar graphs or flow charts with text should be created in black and * white, not shades of gray, which are difficult to reproduce in even tones. If more * than two sets of data are represented, use of fill patterns or colors (not gray) is * suggested to present the data clearly.
+* Minimum resolution is 300 dpi for color and grayscale figures, 600 dpi for * combination halftones, and 1000 dpi for line art.
+
+
+
+```{r pkg}
+library(tidyverse)
+library(RColorBrewer)
+library(readxl)
+library(kableExtra)
+library(tiff)
+library(grid)
+```
+
+```{r}
+
+# palette
+blues <- brewer.pal(9,"Blues")
+greens <- brewer.pal(9,"Greens")
+excel_pal <- c("#CEDBE6", "#3494BA", "#58B6C0", "#75BDA7", "#84ACB6", "#2683C6", "#373545")
+greys <- gray.colors(6, start = 0, end = 1)
+
+# figure saving settings
+units = "in"
+fig_w <- 3.2
+fig_w_1.5 <- 4.5
+fig_h <- 4.5
+fig_h_1.5 <- 4.5 * 1.5
+dpi <- 300
+device <- "tiff"
+
+```
+
+```{r import}
+file <- here::here("data", "Meta-Analysis Data Collection.xlsx")
+
+# added a row for column names more useful
+# # skipped first two rows of of old col names
+
+dat <- read_excel(file, sheet = "Data")
+
+```
+
+## Other palettes
+
+All colour blind-friendly.
+
+```{r}
+display.brewer.all(colorblindFriendly = TRUE)
+```
+```{r fig.height=.2, fig.width=6}
+df <- data.frame(x = 1:6, y = 1)
+pal <- viridisLite::viridis(6)
+df %>% ggplot(aes(x = factor(x), y = y, fill = factor(x))) +
+  geom_col(fill = pal) +
+  theme_void()
+pal <- viridisLite::viridis(6, option = "A")
+df %>% ggplot(aes(x = factor(x), y = y, fill = factor(x))) +
+  geom_col(fill = pal) +
+  theme_void()
+pal <- viridisLite::viridis(6, option = "B")
+df %>% ggplot(aes(x = factor(x), y = y, fill = factor(x))) +
+  geom_col(fill = pal) +
+  theme_void()
+pal <- viridisLite::viridis(6, option = "C")
+df %>% ggplot(aes(x = factor(x), y = y, fill = factor(x))) +
+  geom_col(fill = pal) +
+  theme_void()
+```
+
+
+Note: there is a 85th line containing only a note in the `NOTES` variable - presumably it belongs elsewhere and was excluded. The note was "compares different papers on bone marrow MSCs, doesn't say anything about prep of cells"
+
+```{r tidy-data}
+# recode country so those with one paper are
+# "Other"
+dat <- dat %>%
+  mutate(Country2 = recode_factor(Country,
+                                Brazil = "Brazil",
+                                China = "China",
+                                Denmark = "Denmark",
+                                Egypt = "Egypt",
+                                India = "India",
+                                Japan = "Japan",
+                                Korea = "Korea",
+                                Netherlands = "Netherlands",
+                                Poland = "Poland",
+                                `Rep Korea` = "Rep Korea",
+                                Russia = "Russia",
+                                Spain = "Spain",
+                                Taiwan = "Taiwan",
+                                USA = "USA",
+                                .default = "Other"))
+
+dat <- dat %>%
+  mutate(Phase_condensed = recode_factor(Phase,
+                               I = "I",
+                               `I/IIa` = "I",
+                                II = "II",
+                                IIa = "II",
+                               IIb = "II",
+                               III = "III"))
+
+# test results - there is no "t" in the data file and there are more
+# blanks values than t's in draft paper fig 6
+dat <- dat %>%
+  mutate(test_results = recode_factor(`Test Results?`,
+                                       n = "Average value",
+                                       s = "Stated as 'standard phenotype'",
+                                       o = "Not discussed",
+                                       y = "Phenotypic markers reported",
+                                       t = "Tests done but not reported"))
+dat$test_results <- fct_relevel(dat$test_results,
+                              "Phenotypic markers reported", 
+                              "Average value",
+                              "Tests done but not reported",
+                              "Stated as 'standard phenotype'",
+                              "Not discussed")
+
+# MOA - recode NS to Not stated
+dat <- dat %>%
+  mutate(MOA = recode_factor(MOA,
+                             NS = "Not stated",
+                             paracrine = "Paracrine",
+                             immune = "Immune",
+                             differentiation = "Differentiation",
+                             multi = "Muliple"))
+
+dat$MOA <- fct_relevel(dat$MOA,
+                       "Paracrine",
+                       "Immune",
+                       "Differentiation",
+                       "Muliple",
+                       "Not stated")
+
+# recode stem/stromal
+dat <- dat %>%
+  mutate(stem_stromal = recode_factor(`Stem/Stromal`,
+                             `multipotent stromal` = "Multipotent Stromal",
+                             other = "Other",
+                             stem = "Stem",
+                             stromal = "Stromal"))
+
+dat$stem_stromal <- fct_relevel(dat$stem_stromal,
+                                "Stromal",
+                                "Stem",
+                                "Multipotent Stromal",
+                                "Other")
+
+# Recode O, A and C into the 5 categories that appar 
+dat <- dat %>%
+  mutate(potency = ifelse(O == "y" &
+                            A == "y" &
+                            C == "y",
+                          "Demonstrated tripotency",
+                          ifelse(O == "n" &
+                                   A == "n" &
+                                   C == "n",
+                                 "Not Stated",
+                                 ifelse(O == "y" &
+                                          A == "y" &
+                                          C == "n",
+                                        "Demonstrated bipotency (OA)",
+                                        ifelse(O == "m"
+                                               & A == "m" &
+                                                 C == "n",
+                                               "Claimed bipotency (OA)",
+                                               ifelse(O == "m" &
+                                                  A == "m" &
+                                                  C == "m",
+                                                  "Claimed tripotency", NA))))))        
+
+dat$potency <- fct_relevel(dat$potency,
+                                "Demonstrated tripotency",
+                                "Demonstrated bipotency (OA)",
+                                "Claimed tripotency",
+                                "Claimed bipotency (OA)",
+                                "Not Stated")                        
+
+
+######### code for "Data Tab copy v1.csv"
+# # column indices for markers
+# firstmarker <- which(colnames(dat) == "CD73")
+# lastmarker <- which(colnames(dat) == "SSEA.4")
+# # vector of marker names
+# markers <- names(dat[firstmarker:lastmarker])
+# 
+# datnum <- dat %>% 
+#   select(markers) %>% 
+#   mutate_all(as.numeric) 
+# 
+# # add the non marker columns
+# notmarkers <- which(!(colnames(dat) %in% markers))
+# datnum <- cbind(dat[notmarkers], datnum)
+# 
+# 
+# dat$Stem.Stromal <- factor(dat$Stem.Stromal)
+# dat$Year <- factor(dat$Year)
+# datnum$Stem.Stromal <- factor(datnum$Stem.Stromal)
+# datnum$Year <- factor(datnum$Year)
+
+
+```
+# Figures
+Note: tifs are of high quality than appear in this doc
+
+## Fig 1 - Article search funnel
+
+Funnel plot - could be adapted to include the reviews adjacent and aligned with the articles plot.
+
+> to do: Add the Reviews diagram
+
+```{r data-prep-fig1}
+# create data
+# short names for proof of method
+orig <- data.frame(step_names = c("1.mesenchymal",
+                                  "2.article",
+                                  "3.cell tissue etc",
+                                  "4.clinical etc",
+                                  "5.not biotech etc",
+                                  "6.exc conf etc"),
+                   n = c(65706,
+                         47031,
+                         7814,
+                         5502,
+                         2055,
+                         1986))
+
+orig$step_names <- fct_relevel(orig$step_names,
+                               "mesenchymal",
+                               "article",
+                               "cell tissue etc",
+                               "clinical etc",
+                               "not biotech etc",
+                               "exc conf etc")
+
+# prep polygons that connect
+to_poly_orig <- orig %>%
+  arrange(n) %>%
+  mutate(
+    group = row_number(),
+    x1 = 0 + ((1 - n)/2),
+    x4 = n + ((1 - n)/2),
+    x2 = lag(x1), 
+    x3 = lag(x4)) %>%
+  mutate(
+    x2 = ifelse(is.na(x2), x1, x2),
+    x3 = ifelse(is.na(x3), x4, x3)
+  ) %>%
+  gather(xpoint, x, -step_names,-group, -n) %>%
+  arrange(group, xpoint) %>%
+  mutate(y = ifelse(xpoint %in% c("x2", "x3"), group, group + 1))
+
+
+# EXAMPLE
+# Create the placement of the stages in the plot,
+#  by just adding a 0.5 to each row number
+
+
+labels <- orig %>%
+  arrange(n) %>%
+  mutate(y = row_number() + 0.5)
+
+# modify the labels
+labels$step_names2 <- c( "EXCLUDE conference proceedings,\nretracted papers",
+                         "EXCLUDE CATEGORIES (NOT\nbiotechnology applied microbiology oncology\nhaematology, engineering biomedical)",
+                         "REFINE BY SOURCE TITLES\n(EXCLUDE NOT clinical/\ntranslation/regenerative medicine)",
+                         "REFINE BY CATEGORY\ncell tissue engineering\nand transplantation",
+                         "REFINE BY DOCUMENT TYPE\narticle",
+                         "mesenchymal stem cells OR\nmesenchymal stromal cells OR\nMSC AND characterisation AND clinical")
+```
+
+
+
+```{r fig1-blues}
+article_funnel <- to_poly_orig %>%
+  ggplot() +
+  geom_polygon(aes(x,
+                   y,
+                   group = group,
+                   fill = step_names),
+               color = "black") +
+  geom_label(aes(x = 0,
+                y = y,
+                label = n),
+            data = labels, 
+            size = 2,
+            label.size = 0,
+            label.padding = unit(0.1, "lines"),
+            label.r = unit(0.1, "lines")) +
+  scale_y_continuous(breaks = labels$y,
+                     labels = labels$step_names2) +
+  labs(title = "Wilson, Alison, Figure 1. TOP" ) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y  = element_text(size = 6, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+    scale_fill_manual(values = blues)
+
+ggsave("figs/fig_1_Article_search_funnel_blues.tif", 
+       plot = article_funnel, 
+       device = device,
+       width = fig_w, 
+       height = 3.0,
+       units = units,
+       dpi = dpi)
+```
+
+```{r}
+grid.raster(readTIFF("figs/fig_1_Article_search_funnel_blues.tif"))
+```
+
+```{r fig1-excel}
+article_funnel <- to_poly_orig %>%
+  ggplot() +
+  geom_polygon(aes(x,
+                   y,
+                   group = group,
+                   fill = step_names),
+               color = "black") +
+  geom_label(aes(x = 0,
+                y = y,
+                label = n),
+            data = labels, 
+            size = 2,
+            label.size = 0,
+            label.padding = unit(0.1, "lines"),
+            label.r = unit(0.1, "lines")) +
+  scale_y_continuous(breaks = labels$y,
+                     labels = labels$step_names2) +
+  labs(title = "Wilson, Alison, Figure 1. TOP") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y  = element_text(size = 6, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+    scale_fill_manual(values = excel_pal)
+
+ggsave("figs/fig_1_Article_search_funnel_excel.tif", 
+       plot = article_funnel, 
+       device = device,
+       width = fig_w, 
+       height = 3.0,
+       units = units,
+       dpi = dpi)
+```
+
+```{r}
+grid.raster(readTIFF("figs/fig_1_Article_search_funnel_excel.tif"))
+```
+
+
+```{r fig1-greys}
+article_funnel <- to_poly_orig %>%
+  ggplot() +
+  geom_polygon(aes(x,
+                   y,
+                   group = group,
+                   fill = step_names),
+               color = "black") +
+  geom_label(aes(x = 0,
+                y = y,
+                label = n),
+            data = labels, 
+            size = 2,
+            label.size = 0,
+            label.padding = unit(0.1, "lines"),
+            label.r = unit(0.1, "lines")) +
+  scale_y_continuous(breaks = labels$y,
+                     labels = labels$step_names2) +
+  labs(title = "Wilson, Alison, Figure 1. TOP" ) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y  = element_text(size = 6, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+    scale_fill_manual(values = rev(greys))
+
+ggsave("figs/fig_1_Article_search_funnel_greys.tif", 
+       plot = article_funnel, 
+       device = device,
+       width = fig_w, 
+       height = 3.0,
+       units = units,
+       dpi = dpi)
+```
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_1_Article_search_funnel_greys.tif"))
+```
+
+
+## Figure 3 Articles by country
+
+```{r country-prep}
+summary_country <- dat %>%
+  group_by(Country) %>% 
+  summarise(n = length(Country))
+
+
+```
+
+```{r fig3-country-bar-blues}
+country_bar <- summary_country %>% 
+  ggplot(aes(x = reorder(Country, n), y = n)) +
+  geom_bar(stat = "identity", fill = blues[4],
+           colour = "black") +
+  xlab("") +
+  scale_y_continuous(name = "Number of articles", 
+                     breaks = seq(0, 16, 1),
+                     minor_breaks = seq(0, 16, 1),
+                     limits = c(0, 16),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Wilson, Alison, Figure 3. TOP" ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 6, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 6, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+ggsave("figs/fig_3_Article_country_blues.tif", 
+       plot = country_bar, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+  
+```
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_3_Article_country_blues.tif"))
+```
+
+
+```{r fig3-country-bar-excel}
+country_bar <- summary_country %>% 
+  ggplot(aes(x = reorder(Country, n), y = n)) +
+  geom_bar(stat = "identity", fill = excel_pal[3],
+           colour = "black") +
+  xlab("") +
+  scale_y_continuous(name = "Number of articles", 
+                     breaks = seq(0, 16, 1),
+                     minor_breaks = seq(0, 16, 1),
+                     limits = c(0, 16),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Wilson, Alison, Figure 3. TOP" ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 6, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 6, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+ggsave("figs/fig_3_Article_country_excel.tif", 
+       plot = country_bar, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+  
+```
+
+```{r}
+grid.raster(readTIFF("figs/fig_3_Article_country_excel.tif"))
+```
+
+```{r fig3-country-bar-greys}
+country_bar <- summary_country %>% 
+  ggplot(aes(x = reorder(Country, n), y = n)) +
+  geom_bar(stat = "identity", fill = "white",
+           colour = "black") +
+  xlab("") +
+  scale_y_continuous(name = "Number of articles", 
+                     breaks = seq(0, 16, 1),
+                     minor_breaks = seq(0, 16, 1),
+                     limits = c(0, 16),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Wilson, Alison, Figure 3. TOP" ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 6, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 6, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+ggsave("figs/fig_3_Article_country_greys.tif", 
+       plot = country_bar, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+  
+```
+
+```{r}
+grid.raster(readTIFF("figs/fig_3_Article_country_greys.tif"))
+```
+
+
+## Figure 4 Articles by Phase
+
+### Six phase version
+
+```{r phase-prep}
+summary_phase <- dat %>%
+  group_by(Phase) %>% 
+  summarise(n = length(Phase),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+summary_phase <- summary_phase %>%
+  mutate(Phase_condensed = recode_factor(Phase,
+                               I = "I",
+                               `I/IIa` = "I",
+                                II = "II",
+                                IIa = "II",
+                               IIb = "II",
+                               III = "III"))
+
+summary_phase_condensed <- dat %>%
+  group_by(Phase_condensed) %>% 
+  summarise(n = length(Phase_condensed),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+
+```
+
+```{r fig4-phase-blues}
+phase_bar <- summary_phase %>% 
+  ggplot(aes(x = reorder(Phase,n), y = n)) +
+  geom_bar(stat = "identity", fill = blues[4], colour = "black") +
+  xlab("") +
+  geom_text(aes(y = 10, label = pc) ) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 30, 5),
+                     minor_breaks = seq(0, 30, 1),
+                     limits = c(0, 30),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Wilson, Alison, Figure 4. TOP" ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+
+ggsave("figs/fig_4_Article_phase_blues.tif", 
+       plot = phase_bar, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_4_Article_phase_blues.tif"))
+```
+
+
+```{r fig4-phase-excel}
+phase_bar <- summary_phase %>% 
+  ggplot(aes(x = reorder(Phase,n), y = n)) +
+  geom_bar(stat = "identity", fill = excel_pal[3], colour = "black") +
+  xlab("") +
+  geom_text(aes(y = 10, label = pc) ) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 30, 5),
+                     minor_breaks = seq(0, 30, 1),
+                     limits = c(0, 30),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Wilson, Alison, Figure 4. TOP" ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+
+ggsave("figs/fig_4_Article_phase_excel.tif", 
+       plot = phase_bar, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_4_Article_phase_excel.tif"))
+```
+
+
+```{r fig4-phase-greys}
+phase_bar <- summary_phase %>% 
+  ggplot(aes(x = reorder(Phase,n), y = n)) +
+  geom_bar(stat = "identity", fill = "white", colour = "black") +
+  xlab("") +
+  geom_text(aes(y = 10, label = pc) ) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 30, 5),
+                     minor_breaks = seq(0, 30, 1),
+                     limits = c(0, 30),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Wilson, Alison, Figure 4. TOP" ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+
+ggsave("figs/fig_4_Article_phase_greys.tif", 
+       plot = phase_bar, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_4_Article_phase_greys.tif"))
+```
+
+
+### Three phase
+
+```{r fig4-phase-3-blues}
+phase_3_bar <- summary_phase_condensed %>% 
+  ggplot(aes(x = reorder(Phase_condensed, n), y = n)) +
+  geom_bar(stat = "identity", fill = blues[4], colour = "black") +
+  xlab("") +
+  geom_text(aes(y = 10, label = pc) ) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 60, 5),
+                     minor_breaks = seq(0, 60, 1),
+                     limits = c(0, 60),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Wilson, Alison, Figure 4. TOP" ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+
+ggsave("figs/fig_4_Article_phase_3_blues.tif", 
+       plot = phase_3_bar, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_4_Article_phase_3_blues.tif"))
+```
+
+```{r fig4-phase-3-excel}
+phase_3_bar <- summary_phase_condensed %>% 
+  ggplot(aes(x = reorder(Phase_condensed, n), y = n)) +
+  geom_bar(stat = "identity", fill = excel_pal[3], colour = "black") +
+  xlab("") +
+  geom_text(aes(y = 10, label = pc) ) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 60, 5),
+                     minor_breaks = seq(0, 60, 1),
+                     limits = c(0, 60),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Wilson, Alison, Figure 4. TOP" ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+
+ggsave("figs/fig_4_Article_phase_3_excel.tif", 
+       plot = phase_3_bar, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_4_Article_phase_3_excel.tif"))
+```
+
+```{r fig4-phase-3-greys}
+phase_3_bar <- summary_phase_condensed %>% 
+  ggplot(aes(x = reorder(Phase_condensed, n), y = n)) +
+  geom_bar(stat = "identity", fill = "white", colour = "black") +
+  xlab("") +
+  geom_text(aes(y = 10, label = pc) ) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 60, 5),
+                     minor_breaks = seq(0, 60, 1),
+                     limits = c(0, 60),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  labs(title = "Wilson, Alison, Figure 4. TOP" ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+
+ggsave("figs/fig_4_Article_phase_3_greys.tif", 
+       plot = phase_3_bar, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_4_Article_phase_3_greys.tif"))
+```
+
+## Figure 5 Articles by Source-Year
+
+Done with bars side-by-side or stacked. 
+
+### besides
+
+```{r source_year_prep}
+summary_tissue <- dat %>% 
+  group_by(Source, Year = factor(Year), 
+           .drop = FALSE, .preserve = TRUE) %>% 
+  summarise(n = length(Source))
+
+  
+```
+
+```{r fig5-source-year-blues}
+source_year <- summary_tissue %>% 
+  ggplot(aes(x = Year, y = n, fill = Source)) +
+  geom_bar(stat = "identity", colour = "black", 
+           position = position_dodge()) +
+  scale_fill_manual(values = blues[2:7], 
+                    guide = guide_legend(nrow = 2, title = NULL )) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 12, 1),
+                    minor_breaks = seq(0, 12, 1),
+                    limits = c(0, 12),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Year") +
+  labs(title = "Wilson, Alison, Figure 5. TOP" ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.position = "top",
+        legend.title = element_text(size = 6, colour = "black"),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_5_Article_source_year_blues.tif", 
+       plot = source_year, 
+       device = device,
+       width = fig_w_1.5, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_5_Article_source_year_blues.tif"))
+```
+
+```{r fig5-source-year-excel}
+source_year <- summary_tissue %>% 
+  ggplot(aes(x = Year, y = n, fill = Source)) +
+  geom_bar(stat = "identity", colour = "black", 
+           position = position_dodge()) +
+  scale_fill_manual(values = excel_pal, 
+                    guide = guide_legend(nrow = 2, title = NULL )) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 12, 1),
+                    minor_breaks = seq(0, 12, 1),
+                    limits = c(0, 12),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Year") +
+  labs(title = "Wilson, Alison, Figure 5. TOP" ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.position = "top",
+        legend.title = element_text(size = 6, colour = "black"),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_5_Article_source_year_excel.tif", 
+       plot = source_year, 
+       device = device,
+       width = fig_w_1.5, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_5_Article_source_year_excel.tif"))
+```
+
+```{r fig5-source-year-greys}
+source_year <- summary_tissue %>% 
+  ggplot(aes(x = Year, y = n, fill = Source)) +
+  geom_bar(stat = "identity", colour = "black", 
+           position = position_dodge()) +
+  scale_fill_manual(values = greys, 
+                    guide = guide_legend(nrow = 2, title = NULL )) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 12, 1),
+                    minor_breaks = seq(0, 12, 1),
+                    limits = c(0, 12),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Year") +
+  labs(title = "Wilson, Alison, Figure 5. TOP" ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.position = "top",
+        legend.title = element_text(size = 6, colour = "black"),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_5_Article_source_year_greys.tif", 
+       plot = source_year, 
+       device = device,
+       width = fig_w_1.5, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_5_Article_source_year_greys.tif"))
+```
+
+
+### stacked
+```{r fig5-source-year-stack-blues}
+source_year <- summary_tissue %>% 
+  ggplot(aes(x = Year, y = n, fill = Source)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = blues[2:7], 
+                    guide = guide_legend(nrow = 2, title = NULL )) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 12, 1),
+                    minor_breaks = seq(0, 12, 1),
+                    limits = c(0, 12),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Year") +
+  labs(title = "Wilson, Alison, Figure 5. TOP" ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.position = "top",
+        legend.title = element_text(size = 6, colour = "black"),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_5_Article_source_year_stack_blues.tif", 
+       plot = source_year, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_5_Article_source_year_stack_blues.tif"))
+```
+
+
+```{r fig5- source-year-stack-excel}
+source_year <- summary_tissue %>% 
+  ggplot(aes(x = Year, y = n, fill = Source)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = excel_pal, 
+                    guide = guide_legend(nrow = 2, title = NULL )) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 12, 1),
+                    minor_breaks = seq(0, 12, 1),
+                    limits = c(0, 12),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Year") +
+  labs(title = "Wilson, Alison, Figure 5. TOP" ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.position = "top",
+        legend.title = element_text(size = 6, colour = "black"),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_5_Article_source_year_stack_excel.tif", 
+       plot = source_year, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_5_Article_source_year_stack_excel.tif"))
+```
+
+```{r fig5-source-year-stack-greys}
+source_year <- summary_tissue %>% 
+  ggplot(aes(x = Year, y = n, fill = Source)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = greys, 
+                    guide = guide_legend(nrow = 2, title = NULL )) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 12, 1),
+                    minor_breaks = seq(0, 12, 1),
+                    limits = c(0, 12),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Year") +
+  labs(title = "Wilson, Alison, Figure 5. TOP" ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.position = "top",
+        legend.title = element_text(size = 6, colour = "black"),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_5_Article_source_year_stack_greys.tif", 
+       plot = source_year, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+```{r}
+grid.raster(readTIFF("figs/fig_5_Article_source_year_stack_greys.tif"))
+```
+
+
+## Figure 6 Articles by Test quality
+
+```{r test-quality-prep}
+summary_test <- dat %>% 
+  group_by(test_results) %>% 
+  summarise(n = length(test_results))
+
+summary_test$x <- 1
+tot <- sum(summary_test$n)
+n <- summary_test$n
+summary_test$lab_y <- c(n[1]/2,
+                        n[1] + n[2]/2,
+                        n[1] + n[2] + n[3]/2,
+                        n[1] + n[2] + n[3] + n[4]/2,
+                        n[1] + n[2] + n[3] + n[4] + n[5]/2)
+```
+
+
+```{r fig6-test-quality}
+test_quality <- summary_test %>% 
+  ggplot(aes(x = x, y = n, fill = rev(test_results)) ) +
+  geom_bar(stat = "identity", 
+           colour = "black", 
+           width = 2) +
+  geom_text(aes(x = x, y = lab_y, label = n),
+            size = 6) +
+  geom_text(aes(x = 2.2, y = lab_y, label = test_results),
+            hjust = 0, size = 6 ) +
+  scale_fill_manual(values = c(greys[3], greys[5], greys[6], greens[2], greens[4]),
+                    name = "Test results") +
+  xlim(0, 12)  +
+  labs(title = "Wilson, Alison, Figure 7. TOP" ) +
+  theme(panel.background = element_blank(),
+        legend.position = "none",
+        axis.title = element_blank(),
+        axis.text = element_blank(), 
+        axis.ticks = element_blank(),
+        panel.grid.minor.y = element_line(colour = "white", size = 0.3),
+        panel.grid.major.x = element_blank()) 
+ggsave("figs/fig_6_Article_test_quality.tif", 
+       plot = test_quality, 
+       device = device,
+       width = fig_w_1.5, 
+       height = fig_h,
+       units = units,
+       dpi = dpi)
+
+```
+
+## Figure 6 Articles by Phase and Test quality reported
+
+### Stacked by number of articles
+```{r}
+
+summary_phase_test <- dat %>%
+  group_by(Phase_condensed, test_results) %>% 
+  summarise(n = length(Phase))
+```
+
+```{r fig7-phase-test-n}
+phase_test <- summary_phase_test %>% 
+  ggplot(aes(x = Phase_condensed, y = n, fill = test_results)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = c(greens[4], greens[2], greys[6], greys[5],greys[3]),
+                    name = "Test results") +
+  scale_y_continuous(name = "Number of Articles",
+                     breaks = seq(0, 55, 10),
+                     minor_breaks = seq(0, 55, 5),
+                     limits = c(0, 55),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Phase") +
+  labs(title = "Wilson, Alison, Figure 7. TOP" ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.title = element_text(size = 8, colour = "black"),
+        legend.text = element_text(size = 8, colour = "black"),
+        legend.key.size = unit(0.2, "in"),
+        legend.position = c(0.7, 0.8))
+ggsave("figs/fig_7_Article_phase_test_quality_by_N.tif", 
+       plot = phase_test, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+### Stacked by percent of article
+
+```{r fig7-phase-test-pc}
+phase_test2 <- summary_phase_test %>% 
+  ggplot(aes(x = Phase_condensed, y = n)) +
+  geom_bar(aes(fill = test_results), 
+           stat = "identity", 
+           colour = "black", 
+           position = "fill") +
+  scale_fill_manual(values = c(greens[4], greens[2]
+                               , greys[6], greys[5],greys[3]),
+                    name = "Test results", 
+                    guide = guide_legend(nrow = 3, title = NULL )) +
+  scale_y_continuous(name = "Proportion of Articles by Phase",
+                     breaks = seq(0, 1.2, 0.2),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Phase") +
+  geom_text(data = summary_phase_condensed,
+            aes(x = Phase_condensed, y = 1, vjust = -0.4,
+                label = paste("n = ",n))) +
+  labs(title = "Wilson, Alison, Figure 7. TOP" ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.title = element_text(size = 6, colour = "black"),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.2, "in"),
+        legend.position = "top") +
+  coord_cartesian(clip = 'off')
+ggsave("figs/fig_7_Article_phase_test_quality_by_PC.tif", 
+       plot = phase_test2, 
+       device = device,
+       width = fig_w, 
+       height = fig_h,
+       units = units,
+       dpi = dpi)
+```
+
+## Figure 9
+
+There are some inconsistencies in the data file columns for markers (most have three associated columns (value, status and an unnamed one which appears to be a qualifier for the value and which I have named qualifier) but some have one a value but not status. It's not obv what the status should be in some cases.
+
+The markers in this figure thus differ because I'm missed out the unknown status ones.
+
+There's also a single "not stated" value remianing
+
+```{r}
+dat2 <- dat %>% 
+  select(contains("_status")) %>% 
+  rename_all(funs(stringr::str_replace(., fixed("_status"),"") )) %>% 
+  gather(key = "marker", value = "status") %>%
+  mutate(ISCT_pheno = recode_factor(marker,
+                                CD73 = TRUE,
+                                CD90 = TRUE,
+                                CD105 = TRUE,
+                                CD34 = TRUE,
+                                CD45 = TRUE,
+                                CD11b = TRUE,
+                                CD14 = TRUE,
+                                CD79a = TRUE,
+                                CD19 = TRUE,
+                                `HLA-DR` = TRUE,
+                                .default = FALSE))  
+# relevel the factor
+dat2$marker <- fct_relevel(dat2$marker,
+                           "viability", 
+                           "CD73", 
+                           "CD90", 
+                           "CD105",
+                           "CD34", 
+                           "CD45", 
+                           "CD11b",
+                           "CD14", 
+                           "CD79a",
+                           "CD19",
+                           "HLA-DR",
+                           "CD133",
+                           "CD166",
+                           "CD29",
+                           "CD44")
+charc_marker <- dat2 %>%
+  group_by(marker, status) %>% 
+  summarise(n = length(marker))
+charc_marker$marker <- fct_relevel(charc_marker$marker,
+                           "viability", 
+                           "CD73", 
+                           "CD90", 
+                           "CD105",
+                           "CD34", 
+                           "CD45", 
+                           "CD11b",
+                           "CD14", 
+                           "CD79a",
+                           "CD19",
+                           "HLA-DR",
+                           "CD133",
+                           "CD166",
+                           "CD29",
+                           "CD44")
+```
+
+```{r}
+charc_marker %>% 
+  ggplot(aes(x = marker, y = n)) +
+  geom_bar(aes(fill = status), 
+           stat = "identity",
+           position = "fill",
+           colour = "white") +
+  scale_fill_manual(values = blues[4:7], name = "Status") +
+  scale_y_continuous(name = "Proportion of Articles") +
+  scale_x_discrete(expand = c(0, 0), name = "Marker") +
+  theme(panel.background = element_rect(fill = blues[2]),
+        panel.grid = element_blank(),)
+
+
+```
+
+
+## Relationship between MOA and stem/stromal
+
+```{r}
+moa_isct_summary <- dat %>% 
+  group_by(MOA, stem_stromal) %>% 
+  summarise(n = length(MOA))
+
+res <- table(dat$stem_stromal, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
+test_anno <- paste0("There is no significant association between MOA and cell categorisation\n(",
+                   res$method, ": p = ", round(res$p.value, 3))
+
+```
+
+```{r moa-isct-blues}
+moa_isct <- moa_isct_summary %>% 
+  ggplot(aes(x = MOA, y = n, fill = stem_stromal)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = blues[2:5], 
+                    guide = guide_legend(nrow = 4, title = NULL)) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 45, 5),
+                     minor_breaks = seq(0, 45, 5),
+                     limits = c(0, 45),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
+  labs(title = "Wilson, Alison, Figure x. TOP",
+       caption = test_anno) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        plot.caption = element_text(size = 4, hjust = 0),
+        legend.position = c(0.7, 0.8),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_x_moa_isct_blues.tif", 
+       plot = moa_isct, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+```{r moa-isct-excel}
+moa_isct <- moa_isct_summary %>% 
+  ggplot(aes(x = MOA, y = n, fill = stem_stromal)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = excel_pal[1:4], 
+                    guide = guide_legend(nrow = 4, title = NULL)) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 45, 5),
+                     minor_breaks = seq(0, 45, 5),
+                     limits = c(0, 45),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
+  labs(title = "Wilson, Alison, Figure x. TOP",
+       caption = test_anno ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        plot.caption = element_text(size = 4, hjust = 0),
+        legend.position = c(0.7, 0.8),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in")) 
+ ggsave("figs/fig_x_moa_isct_excel.tif", 
+       plot = moa_isct, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+```{r moa-isct-greys}
+moa_isct <- moa_isct_summary %>% 
+  ggplot(aes(x = MOA, y = n, fill = stem_stromal)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = greys[3:6], 
+                    guide = guide_legend(nrow = 4, title = NULL)) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 45, 5),
+                     minor_breaks = seq(0, 45, 5),
+                     limits = c(0, 45),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
+  labs(title = "Wilson, Alison, Figure x. TOP",
+       caption = test_anno ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        plot.caption = element_text(size = 4, hjust = 0),
+        legend.position = c(0.7, 0.8),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_x_moa_isct_greys.tif", 
+       plot = moa_isct, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+
+## Relationship between types of differentiation (OAC) and MOA
+
+```{r}
+table_info <- "There are five combinations for O, A and C potency. 'y' is demonstrated, 'm' is claimed but not demonstrated, 'n' is not mentioned. These were recoded into a single variable, 'potency'."
+
+
+dat %>% 
+  group_by(O, A, C, potency) %>% 
+  summarise(n = length(O)) %>% 
+  kable(caption = table_info) %>% 
+  kable_styling() %>% 
+  save_kable("figs/recode_differentiation_capacity.png")
+
+
+```
+
+```{r}
+res <- table(dat$potency, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
+
+test_anno <- paste0("There is no significant association between MOA and cell categorisation\n(",
+                   res$method, ": p = ", round(res$p.value, 3))
+```
+
+
+```{r moa-potency-prep}
+moa_potency_summary <- dat %>% 
+  group_by(potency, MOA) %>% 
+  summarise(n = length(MOA))
+```
+
+
+```{r moa_potency-blues}
+moa_potency <- moa_potency_summary %>% 
+  ggplot(aes(x = MOA, y = n, fill = potency)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = blues[2:6], 
+                    guide = guide_legend(nrow = 5, title = NULL)) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 45, 5),
+                     minor_breaks = seq(0, 45, 5),
+                     limits = c(0, 45),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
+  labs(title = "Wilson, Alison, Figure x2. TOP",
+       caption = test_anno) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        plot.caption = element_text(size = 4, hjust = 0),
+        legend.position = c(0.7, 0.8),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_x2_moa_potency_blues.tif", 
+       plot = moa_potency, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+```
+
+```{r moa_potency-excel}
+moa_potency <- moa_potency_summary %>% 
+  ggplot(aes(x = MOA, y = n, fill = potency)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = excel_pal[2:6], 
+                    guide = guide_legend(nrow = 5, title = NULL)) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 45, 5),
+                     minor_breaks = seq(0, 45, 5),
+                     limits = c(0, 45),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
+  labs(title = "Wilson, Alison, Figure x2. TOP",
+       caption = test_anno) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        plot.caption = element_text(size = 4, hjust = 0),
+        legend.position = c(0.7, 0.8),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_x2_moa_potency_excel.tif", 
+       plot = moa_potency, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+```
+
+
+```{r moa_potency-greys}
+moa_potency <- moa_potency_summary %>% 
+  ggplot(aes(x = MOA, y = n, fill = potency)) +
+  geom_bar(stat = "identity", colour = "black") +
+  scale_fill_manual(values = greys[2:6], 
+                    guide = guide_legend(nrow = 5, title = NULL)) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 45, 5),
+                     minor_breaks = seq(0, 45, 5),
+                     limits = c(0, 45),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
+  labs(title = "Wilson, Alison, Figure x2. TOP",
+       caption = test_anno) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        plot.caption = element_text(size = 4, hjust = 0),
+        legend.position = c(0.7, 0.8),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.1, "in"))
+ggsave("figs/fig_x2_moa_potency_greys.tif", 
+       plot = moa_potency, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+```
+
+
+## Claimed compliance vs categ compliance
+
+```{r}
+vals <- unique(dat$`ISCT compliance`)
+ref <- dat$`Ref #`[is.na(dat$`ISCT compliance`)]
+```
+
+The values in `ISCT compliance` are: `r vals`
+Probably the empty cell (formal NA in r) should be  "n/a" (a string). It's reference
+`r ref`
+
+```{r}
+
+dat %>% 
+  group_by(`ISCT compliance`,`ISCT claimed`) %>%
+  summarise(n = length(`ISCT claimed`)) %>% 
+  kable() %>% 
+  kable_styling()
+
+```
+These results are so clear (all 14 of the papers that claim compliance do not demonstrate it; no other papers demonstrate it) that no further analysis is necessary.
+
+## Relevance for indication, stem vs stromal
+There are 50 different indications mostly with a single ref. This makes it difficult to deterimine if there is any relationalship between the nature of the indication and whether treatment was with stem of stromal cells.
+
+```{r}
+dat %>% 
+  group_by(Indication, `Stem/Stromal`) %>% 
+  summarise(n = length(`Stem/Stromal`)) %>% 
+  ggplot(aes(x = reorder(Indication, n), y = n, fill = `Stem/Stromal`)) +
+  geom_col() +
+  coord_flip()
+```
+
+```{r}
+ind <- dat %>% 
+  group_by(Indication) %>% 
+  summarise(n = length(potency)) %>% 
+  filter(n > 1)
+
+dat %>% 
+  group_by(Indication,potency) %>% 
+  summarise(n = length(Indication)) %>% 
+  filter(n > 1)
+```
+
