@@ -54,6 +54,7 @@ pal <- viridisLite::viridis(6)
 units = "in"
 fig_w <- 3.2
 fig_w_1.5 <- 4.5
+fig_w_2 <- 5.8
 fig_h <- 4.5
 fig_h_1.5 <- 4.5 * 1.5
 dpi <- 300
@@ -62,12 +63,12 @@ device <- "tiff"
 ```
 
 ```{r import}
-file <- here::here("data", "Meta-Analysis Data Collection.xlsx")
-
-# added a row for column names more useful
-# # skipped first two rows of of old col names
-
-dat <- read_excel(file, sheet = "Data")
+# file <- here::here("data", "Checked Data.xlsx")
+# 
+# # added a row for column names more useful
+# # # skipped first two rows of of old col names
+# 
+# dat <- read_excel(file, sheet = "Checked Data")
 
 ```
 
@@ -75,35 +76,156 @@ dat <- read_excel(file, sheet = "Data")
 ```{r tidy-data}
 # recode country so those with one paper are
 # "Other"
-dat <- dat %>%
-  mutate(Country2 = recode_factor(Country,
-                                Brazil = "Brazil",
-                                China = "China",
-                                Denmark = "Denmark",
-                                Egypt = "Egypt",
-                                India = "India",
-                                Japan = "Japan",
-                                Korea = "Korea",
-                                Netherlands = "Netherlands",
-                                Poland = "Poland",
-                                `Rep Korea` = "Rep Korea",
-                                Russia = "Russia",
-                                Spain = "Spain",
-                                Taiwan = "Taiwan",
-                                USA = "USA",
-                                .default = "Other"))
+# dat <- dat %>%
+#   mutate(Country2 = recode_factor(Country,
+#                                 Brazil = "Brazil",
+#                                 China = "China",
+#                                 Denmark = "Denmark",
+#                                 Egypt = "Egypt",
+#                                 India = "India",
+#                                 Japan = "Japan",
+#                                 Korea = "Korea",
+#                                 Netherlands = "Netherlands",
+#                                 Poland = "Poland",
+#                                 `Rep Korea` = "Rep Korea",
+#                                 Russia = "Russia",
+#                                 Spain = "Spain",
+#                                 Taiwan = "Taiwan",
+#                                 USA = "USA",
+#                                 .default = "Other"))
+```
 
-dat <- dat %>%
-  mutate(Phase_condensed = recode_factor(Phase,
-                               I = "I",
-                               `I/IIa` = "I",
-                                II = "II",
-                                IIa = "II",
-                               IIb = "II",
-                               III = "III"))
+```{r}
+# dat <- dat %>%
+#   mutate(Phase_condensed = recode_factor(Phase,
+#                                I = "I",
+#                                `I/IIa` = "I",
+#                                `I/II` = "I",
+#                                 II = "II",
+#                                 IIa = "II",
+#                                IIb = "II",
+#                                III = "III"))
+```
 
-# test results - there is no "t" in the data file and there are more
-# blanks values than t's in draft paper fig 6
+```{r}
+# dat <- dat %>%
+#   mutate(test_results = recode_factor(`Test Results?`,
+#                                        n = "Average value (n)",
+#                                        s = "Stated as 'standard phenotype' (s)",
+#                                        o = "Not discussed (o)",
+#                                        y = "Phenotypic markers reported (y)",
+#                                        t = "Tests done but not reported (t)"))
+# dat$test_results <- fct_relevel(dat$test_results,
+#                               "Phenotypic markers reported (y)", 
+#                               "Average value (n)",
+#                               "Tests done but not reported (t)",
+#                               "Stated as 'standard phenotype' (s)",
+#                               "Not discussed (o)")
+```
+
+
+
+```{r}
+# MOA - recode NS to Not stated
+# dat <- dat %>%
+#   mutate(MOA = recode_factor(MOA,
+#                              NS = "Not stated",
+#                              paracrine = "Paracrine",
+#                              immune = "Immune",
+#                              differentiation = "Differentiation",
+#                              multi = "Multiple"))
+# 
+# dat$MOA <- fct_relevel(dat$MOA,
+#                        "Paracrine",
+#                        "Immune",
+#                        "Differentiation",
+#                        "Multiple",
+#                        "Not stated")
+```
+
+```{r}
+# recode stem/stromal
+# dat <- dat %>%
+#   mutate(stem_stromal = recode_factor(`Stem/Stromal`,
+#                              `multipotent stromal` = "Multipotent Stromal",
+#                              regenerative = "Regenerative",
+#                              stem = "Stem",
+#                              stromal = "Stromal"))
+# 
+# dat$stem_stromal <- fct_relevel(dat$stem_stromal,
+#                                 "Stromal",
+#                                 "Stem",
+#                                 "Multipotent Stromal",
+#                                 "Regenerative")
+# note: no longer an 'other' category, new regerative category
+```
+
+```{r}
+
+# # Recode O, A and C into the 5 categories that appar 
+# dat <- dat %>%
+#   mutate(differentiation = ifelse(O == "y" &
+#                             A == "y" &
+#                             C == "y",
+#                           "Demonstrated tripotency",
+#                           ifelse(O == "n" &
+#                                    A == "n" &
+#                                    C == "n",
+#                                  "Not Stated",
+#                                  ifelse(O == "y" &
+#                                           A == "y" &
+#                                           C == "n",
+#                                         "Demonstrated bipotency (OA)",
+#                                         ifelse(O == "y" &
+#                                                  A == "n" &
+#                                                  C == "n",
+#                                                "Demonstrated potency (O)",
+#                                                ifelse(O == "m"
+#                                                       & A == "m" &
+#                                                         C == "n",
+#                                                       "Claimed bipotency (OA)",
+#                                                       ifelse(O == "m" &
+#                                                                A == "m" &
+#                                                                C == "m",
+#                                                              "Claimed tripotency", NA)))))))        
+# 
+# dat$differentiation <- fct_relevel(dat$differentiation,
+#                                 "Demonstrated tripotency",
+#                                 "Demonstrated bipotency (OA)",
+#                                 "Demonstrated potency (O)",
+#                                 "Claimed tripotency",
+#                                 "Claimed bipotency (OA)",
+#                                 "Not Stated")                        
+```
+
+
+
+```{r}
+# Recode O, A and C into 2 categories, all n = No, anything else = Yes 
+# dat <- dat %>%
+#   mutate(differentiation2 = ifelse(O == "n" &
+#                                    A == "n" &
+#                                    C == "n",
+#                                  "No", "Yes"))      
+# 
+# dat$differentiation2<- fct_relevel(dat$differentiation2,
+#                                 "No","Yes")                        
+```
+## write to file
+```{r}
+# file <- "data/checked_processed.csv"
+# write_csv(dat, file)
+```
+
+
+# Read in the processed and corrected data
+
+```{r}
+file <- "data/checked_processed_aw_corrections.csv"
+dat <- read_csv(file)
+```
+
+```{r}
 dat <- dat %>%
   mutate(test_results = recode_factor(`Test Results?`,
                                        n = "Average value (n)",
@@ -112,20 +234,26 @@ dat <- dat %>%
                                        y = "Phenotypic markers reported (y)",
                                        t = "Tests done but not reported (t)"))
 dat$test_results <- fct_relevel(dat$test_results,
-                              "Phenotypic markers reported (y)", 
+                              "Phenotypic markers reported (y)",
                               "Average value (n)",
                               "Tests done but not reported (t)",
                               "Stated as 'standard phenotype' (s)",
                               "Not discussed (o)")
+```
 
-# MOA - recode NS to Not stated
+```{r}
+# add a count of the number of markers tested for "Average value (n)". select columns like _test
+test_cols <- names(select(dat, ends_with("_test")) )
 dat <- dat %>%
-  mutate(MOA = recode_factor(MOA,
-                             NS = "Not stated",
-                             paracrine = "Paracrine",
-                             immune = "Immune",
-                             differentiation = "Differentiation",
-                             multi = "Multiple"))
+  mutate(marker_count = rowSums(.[test_cols] == "p"))
+
+```
+
+
+```{r}
+
+dat %>% group_by(MOA) %>% summarise(n = length(MOA))
+
 
 dat$MOA <- fct_relevel(dat$MOA,
                        "Paracrine",
@@ -133,75 +261,19 @@ dat$MOA <- fct_relevel(dat$MOA,
                        "Differentiation",
                        "Multiple",
                        "Not stated")
+```
 
-# recode stem/stromal
-dat <- dat %>%
-  mutate(stem_stromal = recode_factor(`Stem/Stromal`,
-                             `multipotent stromal` = "Multipotent Stromal",
-                             other = "Other",
-                             stem = "Stem",
-                             stromal = "Stromal"))
+
+```{r}
+dat %>% group_by(stem_stromal) %>% summarise(n = length(stem_stromal))
 
 dat$stem_stromal <- fct_relevel(dat$stem_stromal,
                                 "Stromal",
                                 "Stem",
                                 "Multipotent Stromal",
-                                "Other")
-
-# Recode O, A and C into the 5 categories that appar 
-dat <- dat %>%
-  mutate(potency = ifelse(O == "y" &
-                            A == "y" &
-                            C == "y",
-                          "Demonstrated tripotency",
-                          ifelse(O == "n" &
-                                   A == "n" &
-                                   C == "n",
-                                 "Not Stated",
-                                 ifelse(O == "y" &
-                                          A == "y" &
-                                          C == "n",
-                                        "Demonstrated bipotency (OA)",
-                                        ifelse(O == "m"
-                                               & A == "m" &
-                                                 C == "n",
-                                               "Claimed bipotency (OA)",
-                                               ifelse(O == "m" &
-                                                  A == "m" &
-                                                  C == "m",
-                                                  "Claimed tripotency", NA))))))        
-
-dat$potency <- fct_relevel(dat$potency,
-                                "Demonstrated tripotency",
-                                "Demonstrated bipotency (OA)",
-                                "Claimed tripotency",
-                                "Claimed bipotency (OA)",
-                                "Not Stated")                        
-
-
-######### code for "Data Tab copy v1.csv"
-# # column indices for markers
-# firstmarker <- which(colnames(dat) == "CD73")
-# lastmarker <- which(colnames(dat) == "SSEA.4")
-# # vector of marker names
-# markers <- names(dat[firstmarker:lastmarker])
-# 
-# datnum <- dat %>% 
-#   select(markers) %>% 
-#   mutate_all(as.numeric) 
-# 
-# # add the non marker columns
-# notmarkers <- which(!(colnames(dat) %in% markers))
-# datnum <- cbind(dat[notmarkers], datnum)
-# 
-# 
-# dat$Stem.Stromal <- factor(dat$Stem.Stromal)
-# dat$Year <- factor(dat$Year)
-# datnum$Stem.Stromal <- factor(datnum$Stem.Stromal)
-# datnum$Year <- factor(datnum$Year)
-
-
+                                "Regenerative")
 ```
+
 
 ```{r}
 # cd values for 
@@ -210,33 +282,49 @@ dat$potency <- fct_relevel(dat$potency,
 # as phase I/IIa
 # note: ref 55, patient 6, marker CD45+/CD105+ contained value ND - I assumed this was no data.
 # note - I have assumed range  is mean +/- se (not sd)
-file <- here::here("data", "Paper 2 - Charts for Emma.xlsx")
-cd_dat <- read_excel(file, sheet = "cd_values_single")
-cd_dat2 <- read_excel(file, sheet = "cd_values_range")
+# file <- here::here("data", "Paper 2 - Charts for Emma.xlsx")
+# cd_dat <- read_excel(file, sheet = "cd_values_single")
+# cd_dat2 <- read_excel(file, sheet = "cd_values_range")
 ```
 
 
 
 ```{r tidy-cd-data}
-cd_dat <- cd_dat %>% 
-  gather(key = marker, value = value, -Ref, -Phase, -patient, -notes)
-cd_dat$value <- as.numeric(cd_dat$value)
-
-cd_dat2 <- cd_dat2 %>% 
-  gather(key = marker, value = value, -Ref, -Phase, -n)
-
-for (i in 1:length(cd_dat2$value)) {
-  temp <- strsplit(cd_dat2$value[i], split = "\\s.\\s") %>% unlist()
-  cd_dat2$mean_value[i] <- as.numeric(temp[1])
-  cd_dat2$se_value[i] <- as.numeric(temp[2])
-}
-cd_dat2 <- cd_dat2 %>% 
-  filter(!is.na(value)) %>% 
-  select(Ref, marker, mean_value, n, se_value, -Phase, -value)
+# cd_dat <- cd_dat %>% 
+#   gather(key = marker, value = value, -Ref, -Phase, -patient, -notes)
+# cd_dat$value <- as.numeric(cd_dat$value)
+# 
+# cd_dat2 <- cd_dat2 %>% 
+#   gather(key = marker, value = value, -Ref, -Phase, -n)
+# 
+# for (i in 1:length(cd_dat2$value)) {
+#   temp <- strsplit(cd_dat2$value[i], split = "\\s.\\s") %>% unlist()
+#   cd_dat2$mean_value[i] <- as.numeric(temp[1])
+#   cd_dat2$se_value[i] <- as.numeric(temp[2])
+# }
+# cd_dat2 <- cd_dat2 %>% 
+#   filter(!is.na(value)) %>% 
+#   select(Ref, marker, mean_value, n, se_value, -Phase, -value)
 
 
 ```
 
+```{r}
+dat %>% group_by(O) %>% 
+  summarise(n = length(O), pc = n/84)
+```
+```{r}
+dat %>% group_by(A) %>% 
+  summarise(n = length(A), pc = n/84)
+```
+```{r}
+dat %>% group_by(C) %>% 
+  summarise(n = length(C), pc = n/84)
+```
+```{r}
+dat %>% group_by(differentiation) %>% 
+  summarise(n = length(differentiation), pc = n/84)
+```
 
 
 # Figures
@@ -389,9 +477,10 @@ ggsave("figs/fig_3_Article_country.tif",
 ```
 ## Figure 4 Articles by Phase
 
-### Six phase version
+### Eight phase version
 
 ```{r phase-prep}
+
 summary_phase <- dat %>%
   group_by(Phase) %>% 
   summarise(n = length(Phase),
@@ -400,10 +489,12 @@ summary_phase <- summary_phase %>%
   mutate(Phase_condensed = recode_factor(Phase,
                                I = "I",
                                `I/IIa` = "I",
+                               `I/II` = "I",
                                 II = "II",
                                 IIa = "II",
                                IIb = "II",
-                               III = "III"))
+                               III = "III",
+                               NS = "NS"))
 
 summary_phase_condensed <- dat %>%
   group_by(Phase_condensed) %>% 
@@ -417,11 +508,11 @@ phase_bar <- summary_phase %>%
   ggplot(aes(x = reorder(Phase,n), y = n)) +
   geom_bar(stat = "identity", fill = pal[3], size = 0) +
   xlab("") +
-  geom_text(aes(y = n + 3, label = pc) ) +
+  geom_text(aes(y = n + 4, label = pc) ) +
   scale_y_continuous(name = "Number of Articles", 
-                     breaks = seq(0, 35, 5),
-                     minor_breaks = seq(0, 35, 1),
-                     limits = c(0, 35),
+                     breaks = seq(0, 45, 5),
+                     minor_breaks = seq(0, 45, 1),
+                     limits = c(0, 45),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
   labs(title = "Wilson, Alison, Figure 4. TOP" ) +
@@ -450,101 +541,68 @@ ggsave("figs/fig_4_Article_phase.tif",
 ### Three phase
 
 ```{r fig4-phase-3}
-phase_3_bar <- summary_phase_condensed %>% 
-  ggplot(aes(x = reorder(Phase_condensed, n), y = n)) +
-  geom_bar(stat = "identity", fill = pal[3],size = 0) +
-  xlab("") +
-  geom_text(aes(y = n + 6, label = pc) ) +
-  scale_y_continuous(name = "Number of Articles", 
-                     breaks = seq(0, 65, 5),
-                     minor_breaks = seq(0, 65, 1),
-                     limits = c(0, 65),
-                     expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0)) +
-  labs(title = "Wilson, Alison, Figure 4. TOP" ) +
-  theme_classic() +
-  theme(axis.title.y = element_blank(),
-        axis.text.x = element_text(size = 8, colour = "black"),
-        axis.ticks.y = element_blank(),
-        axis.text.y  = element_text(size = 8, colour = "black"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4)) +
-  coord_flip()
-
-ggsave("figs/fig_4_Article_phase_3.tif", 
-       plot = phase_3_bar, 
-       device = device,
-       width = fig_w, 
-       height = fig_w,
-       units = units,
-       dpi = dpi)
+# phase_3_bar <- summary_phase_condensed %>% 
+#   ggplot(aes(x = reorder(Phase_condensed, n), y = n)) +
+#   geom_bar(stat = "identity", fill = pal[3],size = 0) +
+#   xlab("") +
+#   geom_text(aes(y = n + 6, label = pc) ) +
+#   scale_y_continuous(name = "Number of Articles", 
+#                      breaks = seq(0, 65, 5),
+#                      minor_breaks = seq(0, 65, 1),
+#                      limits = c(0, 65),
+#                      expand = c(0, 0)) +
+#   scale_x_discrete(expand = c(0, 0)) +
+#   labs(title = "Wilson, Alison, Figure 4. TOP" ) +
+#   theme_classic() +
+#   theme(axis.title.y = element_blank(),
+#         axis.text.x = element_text(size = 8, colour = "black"),
+#         axis.ticks.y = element_blank(),
+#         axis.text.y  = element_text(size = 8, colour = "black"),
+#         panel.grid.major.x = element_blank(),
+#         panel.grid.minor.x = element_blank(),
+#         panel.grid.minor.y = element_blank(),
+#         plot.title = element_text(hjust = 0, size = 4)) +
+#   coord_flip()
+# 
+# ggsave("figs/fig_4_Article_phase_3.tif", 
+#        plot = phase_3_bar, 
+#        device = device,
+#        width = fig_w, 
+#        height = fig_w,
+#        units = units,
+#        dpi = dpi)
 
 ```
 
 
 ## Figure 5 Articles by Source-Year
 
-Done with bars side-by-side or stacked. 
-
-### besides
 
 ```{r source_year_prep}
 summary_tissue <- dat %>% 
   group_by(Source, Year = factor(Year), 
            .drop = FALSE) %>% 
   summarise(n = length(Source))
-
-  
-```
-
-```{r fig5-source-year}
-source_year <- summary_tissue %>% 
-  ggplot(aes(x = Year, y = n, fill = Source)) +
-  geom_bar(stat = "identity", size = 0, 
-           position = position_dodge()) +
-  scale_fill_manual(values = pal, 
-                    guide = guide_legend(nrow = 2, title = NULL )) +
-  scale_y_continuous(name = "Number of Articles", 
-                    breaks = seq(0, 12, 1),
-                    minor_breaks = seq(0, 12, 1),
-                    limits = c(0, 12),
-                    expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0), name = "Year") +
-  labs(title = "Wilson, Alison, Figure 5. TOP" ) +
-  theme_classic() +
-  theme(axis.text.x = element_text(size = 8, colour = "black"),
-        axis.text.y  = element_text(size = 8, colour = "black"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4),
-        legend.position = "top",
-        legend.title = element_text(size = 6, colour = "black"),
-        legend.text = element_text(size = 6, colour = "black"),
-        legend.key.size = unit(0.1, "in"))
-ggsave("figs/fig_5_Article_source_year.tif", 
-       plot = source_year, 
-       device = device,
-       width = fig_w_1.5, 
-       height = fig_w,
-       units = units,
-       dpi = dpi)
+dat %>% 
+  group_by(Source, 
+           .drop = FALSE) %>% 
+  summarise(n =length(Source), pc = n/84)
 
 ```
+
+
 
 ### stacked
 ```{r fig5-source-year-stack}
 source_year <- summary_tissue %>% 
   ggplot(aes(x = Year, y = n, fill = Source)) +
   geom_bar(stat = "identity", size = 0) +
-  scale_fill_manual(values = pal,
-                    guide = guide_legend(nrow = 2, title = NULL )) +
+  scale_fill_manual(values = pal[c(1,3,5,6)],
+                    guide = guide_legend(nrow = 3, title = NULL )) +
   scale_y_continuous(name = "Number of Articles",
-                    breaks = seq(0, 18, 1),
-                    minor_breaks = seq(0, 18, 1),
-                    limits = c(0, 18),
+                    breaks = seq(0, 20, 2),
+                    minor_breaks = seq(0, 20, 2),
+                    limits = c(0, 20),
                     expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0), name = "Year") +
   labs(title = "Wilson, Alison, Figure 5. TOP" ) +
@@ -555,10 +613,10 @@ source_year <- summary_tissue %>%
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
         plot.title = element_text(hjust = 0, size = 4),
-        legend.position = "top",
-        legend.title = element_text(size = 6, colour = "black"),
+        legend.position = c(0.2, 0.9),
         legend.text = element_text(size = 6, colour = "black"),
-        legend.key.size = unit(0.1, "in"))
+        legend.key.size = unit(0.2, "in"))
+       
 ggsave("figs/fig_5_Article_source_year_stack.tif", 
        plot = source_year, 
        device = device,
@@ -570,34 +628,112 @@ ggsave("figs/fig_5_Article_source_year_stack.tif",
 ```
 
 
-## Figure 6 Articles by Test quality
+## Figure 6 - three panels
+
+
+### panel 1: Articles by Test quality
 
 ```{r test-quality-prep}
 summary_test <- dat %>% 
   group_by(test_results) %>% 
-  summarise(n = length(test_results))
+  summarise(n = length(test_results),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
 
-summary_test$x <- 1
-tot <- sum(summary_test$n)
-n <- summary_test$n
-summary_test$lab_y <- c(n[1]/2,
-                        n[1] + n[2]/2,
-                        n[1] + n[2] + n[3]/2,
-                        n[1] + n[2] + n[3] + n[4]/2,
-                        n[1] + n[2] + n[3] + n[4] + n[5]/2)
+
 ```
 
-## Figure 7 Articles by Phase and Test quality reported
+```{r testquality}
+test_bar <- summary_test %>% 
+  ggplot(aes(x = reorder(test_results, n), y = n, fill = test_results)) +
+  geom_bar(stat = "identity", size = 0) +
+  xlab("") +
+  geom_text(aes(y = n + 6, label = pc) ) +
+  scale_fill_manual(values = pal,
+                    name = "Test results") +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 50, 5),
+                     minor_breaks = seq(0, 50, 1),
+                     limits = c(0, 50),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0),
+                   labels = c("Stated as 'standard\nphenotype' (s)",
+                              "Phenotypic markers\nreported (y)",
+                              "Tests done but\nnot reported (t)",
+                              "Not discussed (o)",
+                              "Average value (n)")) +
+  labs(subtitle = "A") +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.position = "none",
+        plot.title = element_text(hjust = 0, size = 4),
+        plot.margin = margin(r = 0.1, b = 0.1, l = 0, unit="in")) +
+  coord_flip()
+
+# ggsave("figs/fig_6_Article_test_quality.tif", 
+#        plot = test_bar, 
+#        device = device,
+#        width = fig_w, 
+#        height = fig_w,
+#        units = units,
+#        dpi = dpi)
+
+```
+
+### panel 2 how many markers had average values  
+```{r}
+summary_marker_count <- dat %>% 
+  filter(test_results == "Average value (n)") %>%
+  group_by(marker_count) %>% 
+  summarise(n = length(marker_count))
+
+
+```
+
+```{r markercount}
+marker_bar <- summary_marker_count %>% 
+  ggplot(aes(x = factor(marker_count), y = n)) +
+  geom_bar(stat = "identity", fill = pal[2], size = 0) +
+  scale_y_continuous(name = "Number of\n'Average value (n)' Articles ", 
+                     breaks = seq(0, 12, 2),
+                     minor_breaks = seq(0, 12, 2),
+                     limits = c(0, 12),
+                     expand = c(0, 0)) +
+  scale_x_discrete(name = "Number of markers\nreported by an article",
+                   expand = c(0, 0)) +
+  labs(subtitle = "B") +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        plot.margin = margin(r = 0.2, t = 0,l = 0, unit="in")) 
+```
+
+
+### panel 3  Articles by Phase and Test quality reported (previously fig7 a)
 
 ### Stacked by number of articles
 ```{r}
 
+dat %>%
+  group_by(Phase_condensed) %>% 
+  summarise(n = length(Phase_condensed),
+            pc = n/84)
+
 summary_phase_test <- dat %>%
   group_by(Phase_condensed, test_results) %>% 
-  summarise(n = length(Phase))
+  summarise(n = length(Phase_condensed))
 ```
 
-```{r fig7-phase-test-n}
+```{r phasetest}
 phase_test <- summary_phase_test %>% 
   ggplot(aes(x = Phase_condensed, y = n, fill = test_results)) +
   geom_bar(stat = "identity", size = 0) +
@@ -609,7 +745,7 @@ phase_test <- summary_phase_test %>%
                      limits = c(0, 55),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0), name = "Phase") +
-#  labs(subtitle = "A") +
+ labs(subtitle = "C") +
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
@@ -617,82 +753,218 @@ phase_test <- summary_phase_test %>%
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
         plot.title = element_text(hjust = 0, size = 8),
-        legend.position = "none")
-        # legend.title = element_text(size = 8, colour = "black"),
-        # legend.text = element_text(size = 8, colour = "black"),
-        # legend.key.size = unit(0.2, "in"))
-
+        legend.position = "none", 
+        plot.margin = margin(r = 0.3, l = 0.1, t = 0, unit="in")) 
 
 ```
 
 ### Stacked by percent of article
 
 ```{r fig7-phase-test-pc}
-phase_test2 <- summary_phase_test %>% 
-  ggplot(aes(x = Phase_condensed, y = n)) +
-  geom_bar(aes(fill = test_results), 
-           stat = "identity", 
-           size = 0, 
-           position = "fill") +
-  scale_fill_manual(values = pal,
-                    name = "Test results") +
-  scale_y_continuous(name = "Proportion of Articles",
-                     breaks = seq(0, 1, 0.2),
-                #     limits = c(0, 1.2),
-                     expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0), name = "Phase") +
-  geom_text(data = summary_phase_condensed,
-            aes(x = Phase_condensed, y = 1.05, vjust = 1,
-                label = paste("n = ",n))) +
+# phase_test2 <- summary_phase_test %>% 
+#   ggplot(aes(x = Phase_condensed, y = n)) +
+#   geom_bar(aes(fill = test_results), 
+#            stat = "identity", 
+#            size = 0, 
+#            position = "fill") +
+#   scale_fill_manual(values = pal,
+#                     name = "Test results") +
+#   scale_y_continuous(name = "Proportion of Articles",
+#                      breaks = seq(0, 1, 0.2),
+#                 #     limits = c(0, 1.2),
+#                      expand = c(0, 0)) +
+#   scale_x_discrete(expand = c(0, 0), name = "Phase") +
+#   geom_text(data = summary_phase_condensed,
+#             aes(x = Phase_condensed, y = 1.05, vjust = 1,
+#                 label = paste("n = ",n)),size=3) +
 #  labs(subtitle = "B") +
+#   theme_classic() +
+#   theme(axis.text.x = element_text(size = 8, colour = "black"),
+#         axis.text.y  = element_text(size = 8, colour = "black"),
+#         panel.grid.major.x = element_blank(),
+#         panel.grid.minor.x = element_blank(),
+#         panel.grid.minor.y = element_blank(),
+#         #  plot.title = element_text(hjust = 0, size = 8),
+#         legend.position = "none",
+#         plot.margin = margin(r = 0, l = 0, unit="in"))
+
+
+```
+
+```{r fig6}
+
+layout <- "
+aaaaaaa#
+aaaaaaa#
+aaaaaaa#
+#bbbbccc
+#bbbbccc
+#bbbbccc
+#bbbbccc
+#bbbbccc
+"
+
+
+fig6 <- test_bar + marker_bar + phase_test + 
+  plot_layout(design = layout) +
+  plot_annotation(title = "Wilson, Alison, Figure 6. TOP")&
+    theme(text = element_text(size = 8, hjust = 0))
+
+
+ggsave("figs/fig_6.tif", 
+       plot = fig6, 
+       device = device,
+       width = fig_w_2, 
+       height = fig_h,
+       units = units,
+       dpi = dpi)
+
+```
+
+
+```{r}
+dat
+```
+
+
+
+
+## Figure 7 Characterisation by marker.
+```{r}
+
+# select the test columns and count the number of articles for each marker and category
+test_cols
+
+charact_by_marker_ref <- dat %>% 
+  select(ends_with("_test"), `Ref #`) %>% 
+  pivot_longer(cols = -`Ref #`, names_to = "marker", values_to = "status")
+
+# process the names to remove _test
+
+charact_by_marker_ref <- charact_by_marker_ref %>% 
+  mutate(marker2 = str_replace(marker, "_test", ""))
+
+# change levels of status and markers.
+# markers
+# process test_col names
+test_cols <- str_replace(test_cols, "_test", "")
+# set the levels in that order
+charact_by_marker_ref$marker2 <- factor(charact_by_marker_ref$marker2, levels = test_cols)
+
+# status
+# recode status
+charact_by_marker_ref <- charact_by_marker_ref %>%
+  mutate(test_status = recode_factor(status,
+                             p = "Performed, value reported",
+                             m = "Performed, no value reported",
+                             n = "Not mentioned"))
+
+charact_by_marker_ref$test_status <- fct_relevel(charact_by_marker_ref$test_status,
+                                                     "Not mentioned",
+                                                     "Performed, no value reported",
+                                                     "Performed, value reported")
+
+
+
+
+charact_by_marker_summary <- charact_by_marker_ref %>% 
+  group_by(marker2, test_status) %>% 
+  summarise(n = length(marker2))
+
+
+```
+
+```{r}
+fig7 <- charact_by_marker_summary %>% 
+  ggplot() +
+  geom_bar(aes(x = marker2, y = n, fill = test_status),
+           stat = "identity", width = 0.6) +
+  scale_fill_manual(values =  pal[c(1, 2, 5)],
+                    name = "Test results",
+                    guide = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5 )) +
+  scale_y_continuous(name = "Number of Articles",
+                     breaks = seq(0, 90, 10),
+                     minor_breaks = seq(0, 90, 10),
+                     limits = c(0, 90),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0.5), name = "Characterisation attribute") +
+  geom_rect(xmin = 1.5, xmax = 11.5,
+            ymin = -Inf, ymax = Inf,
+            size = 1, linetype = 1, 
+            colour = "black", alpha = 0) +
+  labs(title = "Wilson, Alison, Figure 7. TOP" ) +
   theme_classic() +
-  theme(axis.text.x = element_text(size = 8, colour = "black"),
+  theme(axis.text.x = element_text(size = 6, colour = "black",
+                                   angle = -60, hjust = 0),
         axis.text.y  = element_text(size = 8, colour = "black"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-      #  plot.title = element_text(hjust = 0, size = 8),
-       legend.position = "none")
-
-
-
-phase_test_both <- phase_test + phase_test2 + guide_area() +
-  plot_annotation(title = "Wilson, Alison, Figure 7. TOP",
-                  tag_levels = "A") +
-  theme(legend.position = "top") +
-  guides(fill = guide_legend(nrow = 2, title.position = "top"))
-
-
-ggsave("figs/fig_7_characterisation_by_phase.tif", 
-       plot = phase_test_both, 
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.position = "top",
+        legend.text = element_text(size = 8, colour = "black"),
+        legend.key.size = unit(0.2, "in"))
+ 
+ggsave("figs/fig_7_charact_by_marker.tif", 
+       plot = fig7, 
        device = device,
-       width = fig_w_1.5, 
+       width = fig_w_2, 
        height = fig_h,
        units = units,
        dpi = dpi)
+
+ 
 ```
 
-## Figure 9
 
 ```{r}
-# data incoming
+#alt fig
+fig7alt <- charact_by_marker_ref %>% 
+  ggplot() +
+  geom_tile(aes(x = factor(`Ref #`), y = marker2 , fill = test_status),
+            colour = "white")+
+    scale_fill_manual(values =  pal[c(1, 2, 5)],
+                    name = "Test results",
+                    guide = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5 )) +
+  scale_x_discrete(name = "Reference",
+                     expand = c(0.01, 0)) +
+  scale_y_discrete(expand = c(0, 0), name = "Characterisation attribute") +
+  geom_rect(ymin = 1.5, ymax = 11.5,
+            xmin = -Inf, xmax = Inf,
+            size = 1, linetype = 1,
+            colour = pal[6], alpha = 0) +
+  labs(title = "Wilson, Alison, Figure 7ALT. TOP" ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 5, colour = "black", 
+                                   angle = 90, hjust = 0, vjust = 0.3),
+        axis.text.y  = element_text(size = 6, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.position = "top",
+        legend.text = element_text(size = 8, colour = "black"),
+        legend.key.size = unit(0.2, "in"))
+ 
+ggsave("figs/fig_7_alt.tif", 
+       plot = fig7alt, 
+       device = device,
+       width = fig_w_2, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+ 
 ```
 
-```{r}
-# charc_marker %>% 
-#   ggplot(aes(x = marker, y = n)) +
-#   geom_bar(aes(fill = status), 
-#            stat = "identity",
-#            position = "fill",
-#            colour = "white") +
-#   scale_fill_manual(values = blues[4:7], name = "Status") +
-#   scale_y_continuous(name = "Proportion of Articles") +
-#   scale_x_discrete(expand = c(0, 0), name = "Marker") +
-#   theme(panel.background = element_rect(fill = blues[2]),
-#         panel.grid = element_blank(),)
 
 
-```
+
+# Figure 8
+
+
+
+
+# Figure 9
 
 
 ## Relationship between MOA and stem/stromal
@@ -701,6 +973,12 @@ ggsave("figs/fig_7_characterisation_by_phase.tif",
 moa_isct_summary <- dat %>% 
   group_by(MOA, stem_stromal) %>% 
   summarise(n = length(MOA))
+
+
+dat %>% 
+  group_by(stem_stromal) %>% 
+  summarise(n = length(stem_stromal),
+            pc = n/84)
 
 res <- table(dat$stem_stromal, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
 test_anno <- paste0("There is no significant association between MOA and cell categorisation\n(",
@@ -720,9 +998,10 @@ moa_isct <- moa_isct_summary %>%
                      limits = c(0, 45),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
-  labs(title = "Wilson, Alison, Figure x. TOP") +
+  labs(title = "Wilson, Alison, Figure 9. TOP") +
   theme_classic() +
-  theme(axis.text.x = element_text(size = 8, colour = "black"),
+  theme(axis.text.x = element_text(size = 8, colour = "black",
+                                   angle = -60, hjust = 0),
         axis.text.y  = element_text(size = 8, colour = "black"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -732,7 +1011,7 @@ moa_isct <- moa_isct_summary %>%
         legend.position = c(0.7, 0.8),
         legend.text = element_text(size = 6, colour = "black"),
         legend.key.size = unit(0.2, "in"))
-ggsave("figs/fig_x_moa_isct.tif", 
+ggsave("figs/fig_9_moa_isct.tif", 
        plot = moa_isct, 
        device = device,
        width = fig_w, 
@@ -741,27 +1020,59 @@ ggsave("figs/fig_x_moa_isct.tif",
        dpi = dpi)
 
 ```
-## Relationship between types of differentiation (OAC) and MOA
 
+
+## Figure 10 assocation between differentiation2 and MOA
 ```{r}
-table_info <- "There are five combinations for O, A and C potency. 'y' is demonstrated, 'm' is claimed but not demonstrated, 'n' is not mentioned. These were recoded into a single variable, 'potency'."
-
-
-dat %>% 
-  group_by(O, A, C, potency) %>% 
-  summarise(n = length(O)) %>% 
-  kable(caption = table_info) %>% 
-  kable_styling() %>% 
-  save_kable("figs/recode_differentiation_capacity.png")
+diffmoasum <- dat %>% group_by(MOA, differentiation2) %>% 
+  summarise(n = length(differentiation2))
 
 
 ```
 
 ```{r}
-res <- table(dat$potency, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
+moa_diff <- diffmoasum %>% 
+  ggplot(aes(x = MOA, y = n, fill = differentiation2)) +
+  geom_bar(stat = "identity", size = 0) +
+   scale_fill_manual(values = pal[c(2,5)], 
+                    guide = guide_legend(nrow = 4, title = "Differentiation capacity"),
+                    labels = c("Not demonstrated", "Demonstrated")) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 45, 5),
+                     minor_breaks = seq(0, 45, 5),
+                     limits = c(0, 45),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
+  labs(title = "Wilson, Alison, Figure 10. TOP") +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black",
+                                   angle = -60, hjust = 0),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        plot.caption = element_text(size = 4, hjust = 0),
+        legend.position = c(0.7, 0.8),
+        legend.text = element_text(size = 6, colour = "black"),
+        legend.key.size = unit(0.2, "in"),
+        legend.title = element_text(size = 8))
+ggsave("figs/fig_10_moa_diff.tif", 
+       plot = moa_diff, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+  
+```
 
-test_anno <- paste0("There is no significant association between MOA and cell categorisation\n(",
-                   res$method, ": p = ", round(res$p.value, 3))
+
+
+```{r}
+res <- table(dat$differentiation2, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
+chisq.test(table(dat$differentiation2, dat$MOA))$exp;table(dat$differentiation2, dat$MOA)
+test_anno <- paste0("There is  significant association between MOA and demonstration of differentiation capacity(", res$method, ": p = ", round(res$p.value, 3),") with more studies demonstrating differentiation for Immune MOA, and fewer for Paracrine and Multiple MOA than expected.")
 ```
 
 
