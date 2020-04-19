@@ -327,6 +327,10 @@ dat %>% group_by(differentiation) %>%
 ```
 
 
+```{r}
+dat %>% group_by(other_functionality) %>% 
+  summarise(n = length(other_functionality), pc = n/84)
+```
 # Figures
 
 ## Fig 1 - Article search funnel
@@ -879,7 +883,7 @@ fig7 <- charact_by_marker_summary %>%
   ggplot() +
   geom_bar(aes(x = marker2, y = n, fill = test_status),
            stat = "identity", width = 0.6) +
-  scale_fill_manual(values =  pal[c(1, 2, 5)],
+  scale_fill_manual(values =  c("#BABABA", pal[c(2, 5)]),
                     name = "Test results",
                     guide = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5 )) +
   scale_y_continuous(name = "Number of Articles",
@@ -916,14 +920,14 @@ ggsave("figs/fig_7_charact_by_marker.tif",
  
 ```
 
-
+# Possible alternative to Fig 7 (and 6b)
 ```{r}
 #alt fig
 fig7alt <- charact_by_marker_ref %>% 
   ggplot() +
   geom_tile(aes(x = factor(`Ref #`), y = marker2 , fill = test_status),
             colour = "white")+
-    scale_fill_manual(values =  pal[c(1, 2, 5)],
+    scale_fill_manual(values =  c("#BABABA", pal[c(2, 5)]),
                     name = "Test results",
                     guide = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5 )) +
   scale_x_discrete(name = "Reference",
@@ -932,7 +936,7 @@ fig7alt <- charact_by_marker_ref %>%
   geom_rect(ymin = 1.5, ymax = 11.5,
             xmin = -Inf, xmax = Inf,
             size = 1, linetype = 1,
-            colour = pal[6], alpha = 0) +
+            colour = "black", alpha = 0) +
   labs(title = "Wilson, Alison, Figure 7ALT. TOP" ) +
   theme_minimal() +
   theme(axis.text.x = element_text(size = 5, colour = "black", 
@@ -946,7 +950,7 @@ fig7alt <- charact_by_marker_ref %>%
         legend.text = element_text(size = 8, colour = "black"),
         legend.key.size = unit(0.2, "in"))
  
-ggsave("figs/fig_7_alt.tif", 
+ggsave("figs/fig_7_charact_by_marker_ALTERNATIVE.tif", 
        plot = fig7alt, 
        device = device,
        width = fig_w_2, 
@@ -960,7 +964,78 @@ ggsave("figs/fig_7_alt.tif",
 
 
 # Figure 8
+```{r}
+functionality <- dat %>% 
+  select(O, A, C, other_functionality) %>% 
+  pivot_longer(cols = everything(), names_to = "Functionality", values_to = "status") %>% 
+  group_by(Functionality, status) %>% 
+  summarise(n = length(status))
 
+# status
+# recode status
+functionality <- functionality %>%
+  mutate(status = recode_factor(status,
+                                p = "Performed",
+                                m = "Mentioned",
+                                n = "Not mentioned"))
+
+functionality$status <- fct_relevel(functionality$status,
+                                    "Not mentioned",
+                                    "Mentioned",
+                                    "Performed")
+
+# recode functionality
+functionality <- functionality %>%
+  mutate(potency_ass = recode_factor(Functionality,
+                                     other_functionality = "Other functionality",
+                                     C = "Chondrogenesis",
+                                     A = "Adipogenesis",
+                                     O = "Osteogenesis"))
+
+functionality$potency_ass <- fct_relevel(functionality$potency_ass,
+                                         "Other functionality",
+                                         "Chondrogenesis",
+                                         "Adipogenesis",
+                                         "Osteogenesis")
+
+
+```
+
+```{r}
+fig8 <- functionality %>% 
+  ggplot() +
+  geom_bar(aes(x = potency_ass, y = n, fill = status),
+           stat = "identity", position = position_dodge()) +
+  scale_fill_manual(values =  c("#BABABA", pal[c(2, 5)]),
+                    name = "Assessment",
+                    guide = guide_legend(nrow = 2, title.position = "top", title.hjust = 0.5 )) +
+  scale_y_continuous(name = "Number of Articles",
+                     breaks = seq(0, 80, 10),
+                     minor_breaks = seq(0, 80, 10),
+                     limits = c(0, 80),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0.5), name = "Functionality") +
+  labs(title = "Wilson, Alison, Figure 8. TOP" ) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4),
+        legend.position = "top",
+        legend.text = element_text(size = 8, colour = "black"),
+        legend.key.size = unit(0.2, "in")) +
+  coord_flip()
+ 
+ggsave("figs/fig_8_functionality_assessment.tif", 
+       plot = fig8, 
+       device = device,
+       width = fig_w, 
+       height = fig_w,
+       units = units,
+       dpi = dpi)
+```
 
 
 
