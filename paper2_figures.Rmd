@@ -73,7 +73,7 @@ device <- "tiff"
 
 ```{r}
 file <- "data/checked_processed_aw_corrections.csv"
-dat <- read_csv(file)
+dat <- read_csv(file, skip = 1)
 # write(names(dat), "data/varnames.txt")
 
 ```

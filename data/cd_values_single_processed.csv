@@ -1,4 +1,4 @@
-Ref,Phase,patient,notes,marker,value
+ref_number,Phase,patient,notes,marker,value
 6,I,patient 1,FC,Viability,NA
 6,I,patient 2,FC,Viability,NA
 6,I,patient 3,FC,Viability,NA
@@ -1551,103 +1551,103 @@ Ref,Phase,patient,notes,marker,value
 75,I,NA,NA,CD45,0.3
 75,I,NA,NA,CD45,0.2
 75,I,NA,NA,CD45,0
-6,I,patient 1,FC,CD79α,NA
-6,I,patient 2,FC,CD79α,NA
-6,I,patient 3,FC,CD79α,NA
-6,I,patient 4,FC,CD79α,NA
-12,I/IIa,patient 1,IHC,CD79α,NA
-12,I/IIa,patient 2,IHC,CD79α,NA
-12,I/IIa,patient 3,IHC,CD79α,NA
-12,I/IIa,patient 4,IHC,CD79α,NA
-12,I/IIa,patient 5,IHC,CD79α,NA
-14,I,p3 cells,FC,CD79α,NA
-14,I,p3 cells,FC,CD79α,NA
-14,I,p4 cells,FC,CD79α,NA
-14,I,p4 cells,FC,CD79α,NA
-14,I,p4 cells,FC,CD79α,NA
-25,I,patient 1,NA,CD79α,NA
-25,I,patient 2,NA,CD79α,NA
-25,I,patient3,NA,CD79α,NA
-25,I,patient 4,NA,CD79α,NA
-25,I,patient 5,NA,CD79α,NA
-25,I,patient  6,NA,CD79α,NA
-25,I,patient 7,NA,CD79α,NA
-25,I,patient 8,NA,CD79α,NA
-25,I,patient 9,NA,CD79α,NA
-25,I,patient 10,NA,CD79α,NA
-25,I,patient 11,NA,CD79α,NA
-25,I,patient 12,NA,CD79α,NA
-25,I,patient 13,NA,CD79α,NA
-25,I,patient 14,NA,CD79α,NA
-25,I,patient 15,NA,CD79α,NA
-25,I,patient 16,NA,CD79α,NA
-25,I,patient 17,NA,CD79α,NA
-25,I,patient 18,NA,CD79α,NA
-29,I,patient 1 tx 1,NA,CD79α,NA
-29,I,patient 1 tx 2,NA,CD79α,NA
-29,I,patient 2 tx 1,NA,CD79α,NA
-29,I,patient 2 tx 2,NA,CD79α,NA
-29,I,patient 3 tx 1,NA,CD79α,NA
-29,I,patient 3 tx 2,NA,CD79α,NA
-29,I,patient 4 tx 1,NA,CD79α,NA
-29,I,patient 4 tx 2,NA,CD79α,NA
-29,I,patient 5 tx 1,NA,CD79α,NA
-29,I,patient 5 tx 2,NA,CD79α,NA
-29,I,patient 6 tx 1,NA,CD79α,NA
-29,I,patient 6 tx 2,NA,CD79α,NA
-29,I,patient 7 tx 1,NA,CD79α,NA
-29,I,patient 7 tx 2,NA,CD79α,NA
-44,I/IIa,NA,CD105 result not reported even though stated as release criteria. Values are from product made from pooled cells from 3 donors.,CD79α,NA
-49,I,patient 1,NA,CD79α,NA
-49,I,patient 2,NA,CD79α,NA
-49,I,patient 3,NA,CD79α,NA
-49,I,patient 4,NA,CD79α,NA
-49,I,patient 5,NA,CD79α,NA
-49,I,patient 6,NA,CD79α,NA
-49,I,patient 7,NA,CD79α,NA
-49,I,patient 8,NA,CD79α,NA
-49,I,patient 9,NA,CD79α,NA
-49,I,patient 10,NA,CD79α,NA
-49,I,patient 11,NA,CD79α,NA
-49,I,patient 12,NA,CD79α,NA
-53,II,patient 1,NA,CD79α,NA
-53,II,patient 2,NA,CD79α,NA
-53,II,patient 3,NA,CD79α,NA
-53,II,patient 4,NA,CD79α,NA
-53,II,patient 5,NA,CD79α,NA
-53,II,patient 6,NA,CD79α,NA
-53,II,patient 7,NA,CD79α,NA
-53,II,patient 8,NA,CD79α,NA
-53,II,patient 9,NA,CD79α,NA
-53,II,patient 10,NA,CD79α,NA
-53,II,patient 11,NA,CD79α,NA
-53,II,patient 12,NA,CD79α,NA
-53,II,patient 13,NA,CD79α,NA
-53,II,patient 14,NA,CD79α,NA
-53,II,patient 15,NA,CD79α,NA
-53,II,patient 16,NA,CD79α,NA
-53,II,patient 17,NA,CD79α,NA
-53,II,patient 18,NA,CD79α,NA
-55,IIa,patient 1,NA,CD79α,NA
-55,IIa,patient 2,NA,CD79α,NA
-55,IIa,patient 3,NA,CD79α,NA
-55,IIa,patient 4,NA,CD79α,NA
-55,IIa,patient 5,NA,CD79α,NA
-55,IIa,patient 6,NA,CD79α,NA
-75,I,patient 1,NA,CD79α,NA
-75,I,patient 2,NA,CD79α,NA
-75,I,patient 3,NA,CD79α,NA
-75,I,patient 4,NA,CD79α,NA
-75,I,patient 5,NA,CD79α,NA
-75,I,patient 6,NA,CD79α,NA
-75,I,patient 7,NA,CD79α,NA
-75,I,NA,NA,CD79α,NA
-75,I,NA,NA,CD79α,NA
-75,I,NA,NA,CD79α,NA
-75,I,NA,NA,CD79α,NA
-75,I,NA,NA,CD79α,NA
-75,I,NA,NA,CD79α,NA
-75,I,NA,NA,CD79α,NA
+6,I,patient 1,FC,CD79a,NA
+6,I,patient 2,FC,CD79a,NA
+6,I,patient 3,FC,CD79a,NA
+6,I,patient 4,FC,CD79a,NA
+12,I/IIa,patient 1,IHC,CD79a,NA
+12,I/IIa,patient 2,IHC,CD79a,NA
+12,I/IIa,patient 3,IHC,CD79a,NA
+12,I/IIa,patient 4,IHC,CD79a,NA
+12,I/IIa,patient 5,IHC,CD79a,NA
+14,I,p3 cells,FC,CD79a,NA
+14,I,p3 cells,FC,CD79a,NA
+14,I,p4 cells,FC,CD79a,NA
+14,I,p4 cells,FC,CD79a,NA
+14,I,p4 cells,FC,CD79a,NA
+25,I,patient 1,NA,CD79a,NA
+25,I,patient 2,NA,CD79a,NA
+25,I,patient3,NA,CD79a,NA
+25,I,patient 4,NA,CD79a,NA
+25,I,patient 5,NA,CD79a,NA
+25,I,patient  6,NA,CD79a,NA
+25,I,patient 7,NA,CD79a,NA
+25,I,patient 8,NA,CD79a,NA
+25,I,patient 9,NA,CD79a,NA
+25,I,patient 10,NA,CD79a,NA
+25,I,patient 11,NA,CD79a,NA
+25,I,patient 12,NA,CD79a,NA
+25,I,patient 13,NA,CD79a,NA
+25,I,patient 14,NA,CD79a,NA
+25,I,patient 15,NA,CD79a,NA
+25,I,patient 16,NA,CD79a,NA
+25,I,patient 17,NA,CD79a,NA
+25,I,patient 18,NA,CD79a,NA
+29,I,patient 1 tx 1,NA,CD79a,NA
+29,I,patient 1 tx 2,NA,CD79a,NA
+29,I,patient 2 tx 1,NA,CD79a,NA
+29,I,patient 2 tx 2,NA,CD79a,NA
+29,I,patient 3 tx 1,NA,CD79a,NA
+29,I,patient 3 tx 2,NA,CD79a,NA
+29,I,patient 4 tx 1,NA,CD79a,NA
+29,I,patient 4 tx 2,NA,CD79a,NA
+29,I,patient 5 tx 1,NA,CD79a,NA
+29,I,patient 5 tx 2,NA,CD79a,NA
+29,I,patient 6 tx 1,NA,CD79a,NA
+29,I,patient 6 tx 2,NA,CD79a,NA
+29,I,patient 7 tx 1,NA,CD79a,NA
+29,I,patient 7 tx 2,NA,CD79a,NA
+44,I/IIa,NA,CD105 result not reported even though stated as release criteria. Values are from product made from pooled cells from 3 donors.,CD79a,NA
+49,I,patient 1,NA,CD79a,NA
+49,I,patient 2,NA,CD79a,NA
+49,I,patient 3,NA,CD79a,NA
+49,I,patient 4,NA,CD79a,NA
+49,I,patient 5,NA,CD79a,NA
+49,I,patient 6,NA,CD79a,NA
+49,I,patient 7,NA,CD79a,NA
+49,I,patient 8,NA,CD79a,NA
+49,I,patient 9,NA,CD79a,NA
+49,I,patient 10,NA,CD79a,NA
+49,I,patient 11,NA,CD79a,NA
+49,I,patient 12,NA,CD79a,NA
+53,II,patient 1,NA,CD79a,NA
+53,II,patient 2,NA,CD79a,NA
+53,II,patient 3,NA,CD79a,NA
+53,II,patient 4,NA,CD79a,NA
+53,II,patient 5,NA,CD79a,NA
+53,II,patient 6,NA,CD79a,NA
+53,II,patient 7,NA,CD79a,NA
+53,II,patient 8,NA,CD79a,NA
+53,II,patient 9,NA,CD79a,NA
+53,II,patient 10,NA,CD79a,NA
+53,II,patient 11,NA,CD79a,NA
+53,II,patient 12,NA,CD79a,NA
+53,II,patient 13,NA,CD79a,NA
+53,II,patient 14,NA,CD79a,NA
+53,II,patient 15,NA,CD79a,NA
+53,II,patient 16,NA,CD79a,NA
+53,II,patient 17,NA,CD79a,NA
+53,II,patient 18,NA,CD79a,NA
+55,IIa,patient 1,NA,CD79a,NA
+55,IIa,patient 2,NA,CD79a,NA
+55,IIa,patient 3,NA,CD79a,NA
+55,IIa,patient 4,NA,CD79a,NA
+55,IIa,patient 5,NA,CD79a,NA
+55,IIa,patient 6,NA,CD79a,NA
+75,I,patient 1,NA,CD79a,NA
+75,I,patient 2,NA,CD79a,NA
+75,I,patient 3,NA,CD79a,NA
+75,I,patient 4,NA,CD79a,NA
+75,I,patient 5,NA,CD79a,NA
+75,I,patient 6,NA,CD79a,NA
+75,I,patient 7,NA,CD79a,NA
+75,I,NA,NA,CD79a,NA
+75,I,NA,NA,CD79a,NA
+75,I,NA,NA,CD79a,NA
+75,I,NA,NA,CD79a,NA
+75,I,NA,NA,CD79a,NA
+75,I,NA,NA,CD79a,NA
+75,I,NA,NA,CD79a,NA
 6,I,patient 1,FC,CD117,NA
 6,I,patient 2,FC,CD117,NA
 6,I,patient 3,FC,CD117,NA

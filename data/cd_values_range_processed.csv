@@ -1,4 +1,4 @@
-Ref,marker,mean_value,n,se_value,Phase
+ref_number,marker,mean_value,n,se_value,Phase
 46,Viability,91.4,NA,5.7,II
 37,CD73,99.2,6,0.77,I/IIa
 46,CD73,91.2,NA,4.1,II
@@ -27,6 +27,6 @@ Ref,marker,mean_value,n,se_value,Phase
 46,CD45,1.2,NA,0.7,II
 58,CD45,0.3,5,0.2,I/IIa
 63,CD45,2,NA,2.1,I
-63,CD79α,2.4,NA,3,I
+63,CD79a,2.4,NA,3,I
 58,CD117,0.3,5,0.1,I/IIa
 46,HLA-DR,2.1,NA,1.7,II
