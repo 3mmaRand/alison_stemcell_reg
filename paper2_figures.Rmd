@@ -4,7 +4,7 @@ author: "Emma Rand"
 date: "16/01/2020"
 output:
   html_document: default
-  pdf_document: default
+  svg_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = FALSE,
 * submitted as individual files
 * labeled with the Corresponding Author name, the appropriate figure number, and  orientation (e.g., “top”)
 * Figures may be submitted as multipart panels.
-*  *.tif* or .eps 
+*  *.svg* or .eps 
 * final publication size; 1-column width or, if necessary, 1½ column width. The  2-column width should not be used unless necessary.
 * 1.0 column = 3.2 Inches, 8.2 Centimeters, 19.25 Picas
 * 1.5 column = 4.5 Inches, 11.4 Centimeters, 27.00 Picas
@@ -38,7 +38,6 @@ knitr::opts_chunk$set(echo = FALSE,
 library(tidyverse)
 # library(readxl)
 # library(kableExtra)
-library(tiff)
 library(grid)
 library(patchwork)
 library(janitor)
@@ -52,13 +51,11 @@ pal <- viridisLite::viridis(6)
 
 # figure saving settings
 units = "in"
-fig_w <- 3.2
-fig_w_1.5 <- 4.5
-fig_w_2 <- 5.8
-fig_h <- 4.5
-fig_h_1.5 <- 4.5 * 1.5
-dpi <- 600
-device <- "tiff"
+fig_w <- 3.5
+fig_w_1.5 <- 5
+fig_w_2 <- 7.3
+fig_h <- fig_w
+device <- "svg"
 
 ```
 
@@ -86,10 +83,12 @@ source("levels.R")
 
 # Figures
 
-## Fig 1 - Article search funnel
+## Fig 1 - Search
+
+### prep
 
 ```{r data-prep-fig1}
-# create data
+# create data for funnel 1A
 # short names for proof of method
 orig <- data.frame(step_names = c("1.mesenchymal",
                                   "2.article",
@@ -132,17 +131,22 @@ labels <- orig %>%
   mutate(y = row_number() + 0.5)
 
 # modify the labels
-labels$step_names2 <- c( "EXCLUDE conference proceedings,\nretracted papers",
-                         "EXCLUDE CATEGORIES (NOT\nbiotechnology applied microbiology oncology\nhaematology, engineering biomedical)",
-                         "REFINE BY SOURCE TITLES\n(EXCLUDE NOT clinical/\ntranslation/regenerative medicine)",
+labels$step_names2 <- c( "EXCLUDE,\nconference proceedings,\nretracted papers",
+                         "EXCLUDE CATEGORIES (NOT\nbiotechnology, applied\nmicrobiology, oncology\nhaematology,\nengineering biomedical)",
+                         "REFINE BY SOURCE TITLES\n(EXCLUDE NOT clinical/\ntranslation/regenerative,\nmedicine)",
                          "REFINE BY CATEGORY\ncell tissue engineering\nand transplantation",
-                         "REFINE BY DOCUMENT TYPE\narticle",
-                         "mesenchymal stem cells OR\nmesenchymal stromal cells OR\nMSC AND characterisation AND clinical")
+                         "REFINE BY DOCUMENT\nTYPE article",
+                         "mesenchymal stem cells OR\nmesenchymal stromal cells\nOR MSC AND characterisation,\nAND clinical")
+
+# read data for 1B
+fig1b <- read.table("data/fig1b.txt", header = TRUE)
+
 ```
 
 
-
+### each panel of fig 1
 ```{r fig1}
+# figure 1 a
 article_funnel <- to_poly_orig %>%
   ggplot() +
   geom_polygon(aes(x,
@@ -160,76 +164,93 @@ article_funnel <- to_poly_orig %>%
             label.r = unit(0.1, "lines")) +
   scale_y_continuous(breaks = labels$y,
                      labels = labels$step_names2) +
-  labs(title = "Wilson, Alison, Figure 1. TOP" ) +
   theme_minimal() +
   theme(legend.position = "none",
         axis.title = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        axis.text.y  = element_text(size = 7, colour = "black"),
+        axis.text.y  = element_text(size = 7, colour = "black", hjust = 0, face = "plain"),
+        panel.spacing = unit(0, "lines"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4)) +
+        panel.grid.minor.y = element_blank()) +
     scale_fill_manual(values = rev(pal))
 
-ggsave("figs/fig_1_Article_search_funnel.tif", 
-       plot = article_funnel, 
-       device = device,
-       width = fig_w, 
-       height = 3.0,
-       units = units,
-       dpi = dpi)
+
+# fig 1b
+
+data_collection <- fig1b %>% 
+  ggplot() +
+  geom_text(aes(x = x, y = y, label = item),
+            size = 2.5,nudge_y = 0.1,
+            hjust = "left") +
+  facet_grid(. ~ data_element) +
+  scale_x_continuous(limits = c(0, 7)) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        strip.text = element_text(hjust = 0, size = 5.5, colour = "white", face = "bold"),
+        strip.background = element_rect(fill = pal[1], colour = pal[1], size = 0.05),
+        panel.border = element_rect(colour = "black", fill = NA),
+        panel.spacing = unit(0, "lines"),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank()) 
+  
+
+
+
+
 ```
 
-## Figure 3 Articles by country
 
-```{r country-prep}
+### whole fig 1
+```{r fig1}
+
+layout <- "
+#aaaaaaaaaaaaaaaaaaa
+#aaaaaaaaaaaaaaaaaaa
+#aaaaaaaaaaaaaaaaaaa
+#aaaaaaaaaaaaaaaaaaa
+#aaaaaaaaaaaaaaaaaaa
+#aaaaaaaaaaaaaaaaaaa
+#aaaaaaaaaaaaaaaaaaa
+bbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbb
+"
+
+
+fig1 <- article_funnel + data_collection + 
+  plot_layout(design = layout) +
+  plot_annotation(tag_levels = "A")&
+    theme(plot.tag = element_text(size = 9, hjust = 1, face = "bold"))
+
+
+ggsave("figs/fig_1.svg", 
+       plot = fig1, 
+       device = device,
+       width = fig_w, 
+       height = fig_h*1.6,
+       units = units)
+
+```
+
+
+## Fig 2 - Articles by country, phase, indications, route of admin
+
+### prep
+
+```{r fig2-prep}
+# by country A
 summary_country <- dat %>%
   group_by(country) %>% 
   summarise(n = length(country))
 
-
-```
-
-```{r fig3-country-bar}
-country_bar <- summary_country %>% 
-  ggplot(aes(x = reorder(country, n), y = n)) +
-  geom_bar(stat = "identity", fill = pal[3],
-           size = 0) +
-  xlab("") +
-  scale_y_continuous(name = "Number of articles", 
-                     breaks = seq(0, 16, 1),
-                     minor_breaks = seq(0, 16, 1),
-                     limits = c(0, 16),
-                     expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0)) +
-  labs(title = "Wilson, Alison, Figure 3. TOP" ) +
-  theme_classic() +
-  theme(axis.title.y = element_blank(),
-        axis.text.x = element_text(size = 7, colour = "black"),
-        axis.ticks.y = element_blank(),
-        axis.text.y  = element_text(size = 7, colour = "black"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4)) +
-  coord_flip()
-ggsave("figs/fig_3_Article_country.tif", 
-       plot = country_bar, 
-       device = device,
-       width = fig_w, 
-       height = fig_w,
-       units = units,
-       dpi = dpi)
-  
-```
-## Figure 4 Articles by Phase
-
-### Eight phase version
-
-```{r phase-prep}
-
+# phase B
 summary_phase <- dat %>%
   group_by(phase) %>% 
   summarise(n = length(phase),
@@ -240,21 +261,35 @@ summary_phase_condensed <- dat %>%
   summarise(n = length(phase_condensed),
             pc = paste0(round(100 * n / 84, 1 ), "%"))
 
+# indication C
+summary_indication <- dat %>%
+  group_by(indication) %>% 
+  summarise(n = length(indication),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+
+# route D
+summary_route <- dat %>%
+  group_by(route) %>% 
+  summarise(n = length(route),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+
 ```
 
-```{r fig4-phase}
-phase_bar <- summary_phase %>% 
-  ggplot(aes(x = reorder(phase,n), y = n)) +
-  geom_bar(stat = "identity", fill = pal[3], size = 0) +
+
+### each panel figure 2
+```{r fig2}
+#by country
+country_bar <- summary_country %>% 
+  ggplot(aes(x = reorder(country, n), y = n)) +
+  geom_bar(stat = "identity", fill = pal[4],
+           size = 0, width = 0.8) +
   xlab("") +
-  geom_text(aes(y = n + 4, label = pc) ) +
-  scale_y_continuous(name = "Number of Articles", 
-                     breaks = seq(0, 45, 5),
-                     minor_breaks = seq(0, 45, 1),
-                     limits = c(0, 45),
+  scale_y_continuous(name = NULL, 
+                     breaks = seq(0, 15, 5),
+                     minor_breaks = seq(0, 15, 1),
+                     limits = c(0, 16),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
-  labs(title = "Wilson, Alison, Figure 4. TOP" ) +
   theme_classic() +
   theme(axis.title.y = element_blank(),
         axis.text.x = element_text(size = 8, colour = "black"),
@@ -266,104 +301,19 @@ phase_bar <- summary_phase %>%
         plot.title = element_text(hjust = 0, size = 4)) +
   coord_flip()
 
-ggsave("figs/fig_4_Article_phase.tif", 
-       plot = phase_bar, 
-       device = device,
-       width = fig_w, 
-       height = fig_w,
-       units = units,
-       dpi = dpi)
-
-```
-
-
-## Figure 5 Articles by Source-Year
-
-
-```{r source_year_prep}
-summary_tissue <- dat %>% 
-  group_by(source, year, 
-           .drop = FALSE) %>% 
-  summarise(n = length(source))
-dat %>% 
-  group_by(source, 
-           .drop = FALSE) %>% 
-  summarise(n =length(source), pc = n/84)
-
-```
-
-
-
-### stacked
-```{r fig5-source-year-stack}
-source_year <- summary_tissue %>% 
-  ggplot(aes(x = year, y = n, fill = source)) +
-  geom_bar(stat = "identity", size = 0) +
-  scale_fill_manual(values = pal[c(1,3,5,6)],
-                    guide = guide_legend(nrow = 3, title = NULL )) +
-  scale_y_continuous(name = "Number of Articles",
-                    breaks = seq(0, 20, 2),
-                    minor_breaks = seq(0, 20, 2),
-                    limits = c(0, 20),
-                    expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0), name = "Year") +
-  labs(title = "Wilson, Alison, Figure 5. TOP" ) +
-  theme_classic() +
-  theme(axis.text.x = element_text(size = 8, colour = "black"),
-        axis.text.y  = element_text(size = 8, colour = "black"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4),
-        legend.position = c(0.2, 0.9),
-        legend.text = element_text(size = 6, colour = "black"),
-        legend.key.size = unit(0.2, "in"))
-       
-ggsave("figs/fig_5_Article_source_year_stack.tif", 
-       plot = source_year, 
-       device = device,
-       width = fig_w, 
-       height = fig_w,
-       units = units,
-       dpi = dpi)
-
-```
-
-
-## Figure 6 - three panels
-
-
-### panel 1: Articles by Test quality
-
-```{r test-quality-prep}
-summary_test <- dat %>% 
-  group_by(test_results_2) %>% 
-  summarise(n = length(test_results_2),
-            pc = paste0(round(100 * n / 84, 1 ), "%"))
-
-
-```
-
-```{r testquality}
-test_bar <- summary_test %>% 
-  ggplot(aes(x = reorder(test_results_2, n), y = n, fill = test_results_2)) +
-  geom_bar(stat = "identity", size = 0) +
+  
+# by phase
+phase_bar <- summary_phase %>% 
+  ggplot(aes(x = reorder(phase,n), y = n)) +
+  geom_bar(stat = "identity", fill = pal[4], size = 0, width = 0.8) +
   xlab("") +
-  geom_text(aes(y = n + 6, label = pc) ) +
-  scale_fill_manual(values = pal,
-                    name = "Test results") +
-  scale_y_continuous(name = "Number of Articles", 
-                     breaks = seq(0, 50, 5),
-                     minor_breaks = seq(0, 50, 1),
-                     limits = c(0, 50),
+ # geom_text(aes(y = n + 4, label = pc) ) +
+  scale_y_continuous(name = NULL, 
+                     breaks = seq(0, 35, 10),
+                     minor_breaks = seq(0, 35, 1),
+                     limits = c(0, 35),
                      expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0),
-                   labels = c("Stated as 'standard\nphenotype' (s)",
-                              "Phenotypic markers\nreported (y)",
-                              "Tests done but\nnot reported (t)",
-                              "Not discussed (o)",
-                              "Average value (n)")) +
-  labs(subtitle = "A") +
+  scale_x_discrete(expand = c(0, 0)) +
   theme_classic() +
   theme(axis.title.y = element_blank(),
         axis.text.x = element_text(size = 8, colour = "black"),
@@ -372,127 +322,332 @@ test_bar <- summary_test %>%
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-        legend.position = "none",
-        plot.title = element_text(hjust = 0, size = 4),
-        plot.margin = margin(r = 0.1, b = 0.1, l = 0, unit="in")) +
+        plot.title = element_text(hjust = 0, size = 4)) +
   coord_flip()
 
-# ggsave("figs/fig_6_Article_test_quality.tif", 
-#        plot = test_bar, 
-#        device = device,
-#        width = fig_w, 
-#        height = fig_w,
-#        units = units,
-#        dpi = dpi)
-
-```
-
-### panel 2 how many markers had average values  
-```{r}
-dat %>% 
-  filter(test_results_2 != "Average value (n)") %>%
-  filter(marker_count == 1) %>% 
-  select(ref_number,test_results_2, test_results)
-
-
-summary_marker_count <- dat %>% 
-  filter(test_results_2 == "Average value (n)") %>%
-  group_by(marker_count) %>% 
-  summarise(n = length(marker_count))
-
-
-```
-
-```{r markercount}
-marker_bar <- summary_marker_count %>% 
-  ggplot(aes(x = factor(marker_count), y = n)) +
-  geom_bar(stat = "identity", fill = pal[2], size = 0) +
-  scale_y_continuous(name = "Number of\n'Average value (n)' Articles ", 
+# by indication
+indication_bar <- summary_indication %>% 
+  ggplot(aes(x = reorder(indication, n), y = n)) +
+  geom_bar(stat = "identity", fill = pal[4], size = 0, width = 0.8) +
+  xlab("") +
+  scale_y_continuous(name = NULL, 
                      breaks = seq(0, 12, 2),
                      minor_breaks = seq(0, 12, 2),
-                     limits = c(0, 12),
+                     limits = c(0, 13),
                      expand = c(0, 0)) +
-  scale_x_discrete(name = "Number of markers\nreported by an article",
-                   expand = c(0, 0)) +
-  labs(subtitle = "B") +
+  scale_x_discrete(expand = c(0, 0)) +
   theme_classic() +
-  theme(axis.text.x = element_text(size = 8, colour = "black"),
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
         axis.text.y  = element_text(size = 8, colour = "black"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4),
-        plot.margin = margin(r = 0.2, t = 0,l = 0, unit="in")) 
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+
+# by route
+route_bar <- summary_route %>% 
+  ggplot(aes(x = reorder(route, n), y = n)) +
+  geom_bar(stat = "identity", fill = pal[4], size = 0, width = 0.8) +
+  xlab("") +
+#  geom_text(aes(y = n + 3, label = pc) ) +
+  scale_y_continuous(name = NULL, 
+                     breaks = seq(0, 25, 5),
+                     minor_breaks = seq(0, 25, 1),
+                     limits = c(0, 25),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        plot.title = element_text(hjust = 0, size = 4)) +
+  coord_flip()
+
+```
+
+### whole fig 2
+```{r fig2-layout}
+
+layout <- "
+a#
+a#
+ad
+ad
+ad
+ad
+ad
+bd
+bd
+bd
+bd
+cd
+cd
+cd
+"
+
+
+fig2 <- country_bar  + route_bar+ phase_bar+ indication_bar +
+  plot_layout(design = layout) +
+  plot_annotation(caption = "Number of Articles",
+                  tag_levels = "A")&
+    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"),
+          plot.caption = element_text(size = 9, hjust = 0.5, face = "plain"))
+
+
+ggsave("figs/fig_2.svg", 
+       plot = fig2, 
+       device = device,
+       width = fig_w_2, 
+       height = fig_h*2,
+       units = units)
+
+```
+
+## Fig 3 - Articles by sources, allo/auto stem/stromal
+
+### prep
+
+
+```{r fig3_prep}
+# source 3a
+summary_source <- dat %>% 
+  group_by(source) %>% 
+  summarise(n = length(source),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+
+
+# allo va auto 3b
+summary_allo_auto <- dat %>% 
+  group_by(allo_auto) %>% 
+  summarise(n = length(allo_auto),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+
+
+# stem vs stromal 3b
+summary_stem_stromal <- dat %>% 
+  group_by(stem_stromal) %>% 
+  summarise(n = length(stem_stromal),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+```
+### each panel figure 2
+
+```{r fig_3}
+# source
+source_bar <- summary_source %>% 
+  ggplot(aes(x = source, y = n)) +
+  geom_bar(stat = "identity",fill = pal[4], size = 0, width = 0.8) +
+  scale_y_continuous(name = "Number of Articles",
+                    breaks = seq(0, 50, 10),
+                    minor_breaks = seq(0, 50, 10),
+                    limits = c(0, 60),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = NULL) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black",
+                                  angle = 285, vjust = 0.5, hjust = 0),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+# allo - auto
+allo_auto_bar <- summary_allo_auto %>% 
+  ggplot(aes(x = allo_auto, y = n)) +
+  geom_bar(stat = "identity",fill = pal[4], size = 0, width = 0.8) +
+  scale_y_continuous(name = NULL,
+                    breaks = seq(0, 50, 10),
+                    minor_breaks = seq(0, 50, 10),
+                    limits = c(0, 60),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = NULL) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black", 
+                                  angle = 285, vjust = 0.5, hjust = 0),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+
+
+# stem_stomal
+stem_stromal_bar <- summary_stem_stromal %>%
+  ggplot(aes(x = stem_stromal, y = n)) +
+  geom_bar(stat = "identity",fill = pal[4], size = 0, width = 0.8) +
+  scale_y_continuous(name = NULL,
+                    breaks = seq(0, 50, 10),
+                    minor_breaks = seq(0, 50, 10),
+                    limits = c(0, 60),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = NULL) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black", 
+                                   angle = 285, vjust = 0.5, hjust = 0),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank())
 ```
 
 
-### panel 3  Articles by Phase and Test quality reported (previously fig7 a)
+### whole fig 3
+```{r fig_3-layout}
+layout <- "
+aaabbbcccc
+"
 
-### Stacked by number of articles
-```{r}
 
-dat %>%
-  group_by(phase_condensed) %>% 
-  summarise(n = length(phase_condensed),
-            pc = n/84)
+fig3 <- source_bar  + allo_auto_bar+ stem_stromal_bar +
+  plot_layout(design = layout) +
+  plot_annotation(caption = "Source",
+                  tag_levels = "A")&
+    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"),
+          plot.caption = element_text(size = 9, hjust = 0.5, vjust = 1, face = "plain"))
 
+
+ggsave("figs/fig_3.svg", 
+       plot = fig3, 
+       device = device,
+       width = fig_w_1.5, 
+       height = fig_h,
+       units = units)
+```
+
+## Fig 4 - characterisation by article
+
+### prep
+
+
+```{r fig4_prep}
+# test stringency
+summary_test <- dat %>% 
+  group_by(test_results) %>% 
+  summarise(n = length(test_results),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+# phase by stringency
 summary_phase_test <- dat %>%
-  group_by(phase_condensed, test_results_2) %>% 
+  group_by(phase_condensed, test_results) %>% 
   summarise(n = length(phase_condensed))
-```
 
-```{r phasetest}
-phase_test <- summary_phase_test %>% 
-  ggplot(aes(x = phase_condensed, y = n, fill = test_results_2)) +
+# number of markers reported in articles either reporting % by batch of average percentages (p)
+summary_marker_p_count <- dat %>% 
+  filter(test_results != "3. Tests done but % not reported") %>%
+  filter(test_results != "4. Stated as 'standard phenotype'") %>%
+  filter(test_results != "5. No characterisation discussed") %>%
+  group_by(marker_p_count) %>% 
+  summarise(n = length(marker_p_count))
+
+```
+### each panel figure 4
+
+```{r fig_4}
+# test stringency overall
+test_bar <- summary_test %>% 
+  ggplot(aes(x = test_results, y = n, fill = test_results)) +
   geom_bar(stat = "identity", size = 0) +
-  scale_fill_manual(values = pal,
+  xlab("") +
+  geom_text(aes(y = n + 6, label = pc), size = 3 ) +
+  scale_fill_manual(values = rev(pal[1:5]),
                     name = "Test results") +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 50, 5),
+                     minor_breaks = seq(0, 50, 1),
+                     limits = c(0, 53),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), ) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 8, colour = "black"),
+        axis.ticks.y = element_blank(),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.position = "none") +
+  coord_flip()
+
+# tests stringency by phase
+phase_test <- summary_phase_test %>% 
+  ggplot(aes(x = phase_condensed, y = n, fill = test_results)) +
+  geom_bar(stat = "identity", size = 0, width = 0.8) +
+  scale_fill_manual(values = pal,
+                    name = NULL) +
   scale_y_continuous(name = "Number of Articles",
                      breaks = seq(0, 55, 10),
                      minor_breaks = seq(0, 55, 5),
                      limits = c(0, 55),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0), name = "Phase") +
- labs(subtitle = "C") +
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 8),
-        legend.position = "none", 
-        plot.margin = margin(r = 0.3, l = 0.1, t = 0, unit="in")) 
+        legend.position = "none") 
+
+
+# 
+markerp_bar <- summary_marker_p_count %>% 
+  ggplot(aes(x = marker_p_count, y = n)) +
+  geom_bar(stat = "identity", fill = pal[6], size = 0, width = 0.8) +
+  scale_y_continuous(name = NULL, 
+                     breaks = seq(0, 12, 2),
+                     minor_breaks = seq(0, 12, 2),
+                     limits = c(0, 12),
+                     expand = c(0, 0)) +
+  scale_x_continuous(name = "Number of markers",
+                     breaks = seq(0, 11, 1),
+                    minor_breaks = seq(0, 12, 2),
+                    limits = c(0.5, 12),
+                     expand = c(0, 0)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank()) 
 
 ```
 
 
-```{r fig6}
-
+### whole fig 4
+```{r fig_4-layout}
 layout <- "
-aa
-bc
+#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+bbbcccccccccccccccccccccccccccccccccccc
 "
 
+layout <- "
+aaaaaabbbcccc
+"
 
-fig6 <- test_bar + marker_bar + phase_test + 
+fig4 <- test_bar + phase_test + markerp_bar +
   plot_layout(design = layout) +
-  plot_annotation(title = "Wilson, Alison, Figure 6. TOP")&
-    theme(text = element_text(size = 8, hjust = 0))
+  plot_annotation(tag_levels = "A")&
+    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"))
 
 
-ggsave("figs/fig_6.tif", 
-       plot = fig6, 
+ggsave("figs/fig_4.svg", 
+       plot = fig4, 
        device = device,
        width = fig_w_2, 
-       height = fig_h,
-       units = units,
-       dpi = dpi)
-
+       height = 2.2,
+       units = units)
 ```
 
 
-## Figure 7 Characterisation by marker.
+## Fig 5 - Characterisation detail
+
+### prep
+
 ```{r}
 
 # select the test columns and count the number of articles for each marker and category
@@ -514,144 +669,266 @@ test_by_attribute <- test_by_attribute %>%
 # process test_col names
 test_cols <- str_replace(test_cols, "_test", "")
 # set the levels in that order
-test_by_attribute$marker2 <- factor(charact_by_marker_ref$marker2, 
+test_by_attribute$marker2 <- factor(test_by_attribute$marker2, 
                                     levels = test_cols)
-
+test_by_attribute$ref_number <- factor(test_by_attribute$ref_number, 
+                                    levels = c(levels(test_by_attribute$ref_number), "Total P", "Total M"))
 # status
 # recode status
 test_by_attribute <- test_by_attribute %>%
   mutate(test_status = recode_factor(status,
-                                     p = "Performed, value reported",
+                                     p = "Performed, value reported (by batch or average)",
                                      m = "Performed, no value reported",
-                                     n = "Not mentioned"))
+                                     n = "Not performed"))
 
 test_by_attribute$test_status <- fct_relevel(test_by_attribute$test_status,
-                                             "Not mentioned",
+                                             "Not performed",
                                              "Performed, no value reported",
-                                             "Performed, value reported")
+                                             "Performed, value reported (by batch or average)")
+test_by_attribute <- test_by_attribute %>% 
+  select(ref_number, marker2, test_status)
 
+# test_by_attribute$n <- 1
+
+# create the summary row & column
+# test_by_attribute_aug <- bind_rows(
+#   test_by_attribute,
+#   test_by_attribute %>% 
+#     filter(test_status == "Performed, value reported (by batch or average)") %>% 
+#     group_by(ref_number, .drop = FALSE) %>% 
+#     summarize(
+#       n = sum(n),
+#       marker2 = "Total P",
+#       test_status = "Performed, value reported (by batch or average)"
+  #   ),
+  # test_by_attribute %>% 
+  #   filter(test_status == "Performed, value reported (by batch or average)") %>% 
+  #   group_by(marker2, .drop = FALSE) %>% 
+  #   summarize(
+  #     n = sum(n),
+  #     ref_number = "Total P",
+  #     test_status = "Performed, value reported (by batch or average)"
+#     )
+# )
+# 
+# test_by_attribute_aug <- bind_rows(
+#   test_by_attribute_aug,
+#   test_by_attribute %>% 
+#     filter(test_status == "Performed, no value reported") %>% 
+#     group_by(ref_number, .drop = FALSE) %>% 
+#     summarize(
+#       n = sum(n),
+#       marker2 = "Total M",
+#       test_status = "Performed, no value reported"
+  #   ),
+  # test_by_attribute %>% 
+  #   filter(test_status == "Performed, no value reported") %>% 
+  #   group_by(marker2, .drop = FALSE) %>% 
+  #   summarize(
+  #     n = sum(n),
+  #     ref_number = "Total M",
+  #     test_status = "Performed, no value reported"
+#     )
+# )
+
+
+
+
+
+# test_by_attribute_aug$marker2 <- factor(test_by_attribute_aug$marker2, 
+#                                     levels = c(test_cols, "Total P", "Total M"))
+# test_by_attribute_aug$ref_number <- factor(test_by_attribute_aug$ref_number, 
+#                                     levels = levels(test_by_attribute$ref_number))
 
 test_by_attribute_summary <- test_by_attribute %>% 
   group_by(marker2, test_status) %>% 
   summarise(n = length(marker2))
 
-
+isct_pos <- c("CD73", "CD90", "CD105")
+isct_neg <- c("CD34", "CD45", "CD11b", "CD14", "CD79a", "CD19", "HLA-DR")
+isct_not <- c("viability",  "CD3" ,"CD13", "CD31", "CD133", "CD166", "CD29", "CD44", "CD146", "CD271", "STRO-1", "MSCA-1", "SSEA-4")
+  
+test_by_attribute <- test_by_attribute %>%
+    mutate(ISCT = case_when(marker2 %in% isct_pos ~ "+",
+                            marker2 %in% isct_neg ~ "–",
+                            marker2 %in% isct_not ~ ""))
+test_by_attribute_summary <- test_by_attribute_summary %>%
+    mutate(ISCT = case_when(marker2 %in% isct_pos ~ "+",
+                            marker2 %in% isct_neg ~ "–",
+                            marker2 %in% isct_not ~ ""))
+codes <- data.frame(marker2 = test_cols)
+codes <- codes %>%
+  mutate(ISCT = case_when(marker2 %in% isct_pos ~ "+",
+                          marker2 %in% isct_neg ~ "–",
+                          marker2 %in% isct_not ~ ""))
+test_by_attribute$ref_number <- as.numeric(as.character(test_by_attribute$ref_number))
 ```
 
+### each panel in figure 5
+
 ```{r}
-fig7 <- test_by_attribute_summary %>% 
-  ggplot() +
-  geom_bar(aes(x = marker2, y = n, fill = test_status),
-           stat = "identity", width = 0.6) +
-  scale_fill_manual(values =  c("#BABABA", pal[c(2, 5)]),
+
+# create the plot
+# fig5 <- test_by_attribute_aug %>% 
+#   ggplot() + 
+#   geom_tile(aes(x = marker2, y = ref_number, fill = test_status), colour = "white") + 
+#   scale_fill_manual(values =  c("#BABABA", pal[c(3, 5)]),
+#                     name = "Test results",
+#                     guide = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5 )) +
+#   scale_x_discrete(name = "Characterisation attribute",
+#                      expand = c(0.02, 0)) +
+#   scale_y_discrete(expand = c(0, 0), name = "Reference") +
+#   geom_text(data = filter(test_by_attribute_aug, marker2 == 'Total P' | ref_number == 'Total P'| marker2 == 'Total M' | ref_number == 'Total M'), 
+#              aes(x = marker2, y = ref_number, label = n), size = 3, face = "bold") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(size = 8, colour = "black",
+#                                    angle = 300, hjust = 0, vjust = 0.3),
+#         axis.text.y  = element_text(size = 8, colour = "black"),
+#         panel.grid.major.x = element_blank(),
+#         panel.grid.minor.x = element_blank(),
+#         panel.grid.minor.y = element_blank(),
+#         legend.position = "top",
+#         legend.text = element_text(size = 8, colour = "black"),
+#         legend.key.size = unit(0.2, "in"))
+
+
+
+
+# fig5 <- test_by_attribute_aug %>% 
+#   ggplot() + 
+#   geom_tile(aes(x = ref_number, y = marker2, fill = test_status), colour = "white") + 
+#   scale_fill_manual(values =  c("#BABABA", pal[c(3, 5)]),
+#                     name = "Test results",
+                    # guide = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5 )) +
+#   scale_x_discrete(name = "Reference",
+#                      expand = c(0.02, 0)) +
+#   scale_y_discrete(expand = c(0, 0), name = "Characterisation attribute" ) +
+#   geom_text(data = filter(test_by_attribute_aug, marker2 == 'Total P' | ref_number == 'Total P'| marker2 == 'Total M' | ref_number == 'Total M'), 
+#              aes(x = ref_number, y = marker2,  label = n), size = 3, face = "bold") +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(size = 8, colour = "black",
+#                                    angle = 300, hjust = 0, vjust = 0.3),
+#         axis.text.y  = element_text(size = 8, colour = "black"),
+#         panel.grid.major.x = element_blank(),
+#         panel.grid.minor.x = element_blank(),
+#         panel.grid.minor.y = element_blank(),
+#         legend.position = "top",
+#         legend.text = element_text(size = 8, colour = "black"),
+#         legend.key.size = unit(0.2, "in"))
+
+
+
+fig5a <- test_by_attribute %>% 
+  ggplot() + 
+  geom_tile(aes(x = ref_number, y = marker2, fill = test_status), colour = "white") + 
+  scale_fill_manual(values =  c("#BABABA", pal[c(3, 5)]),
                     name = "Test results",
-                    guide = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5 )) +
-  scale_y_continuous(name = "Number of Articles",
-                     breaks = seq(0, 90, 10),
-                     minor_breaks = seq(0, 90, 10),
-                     limits = c(0, 90),
+                    guide = guide_legend(nrow = 3)) +
+  scale_x_continuous(name = "Reference",
+                     breaks = seq(0, 84, 5),
+                     minor_breaks = seq(0, 84, 5),
+                     limits = c(1, 87),
                      expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0.5), name = "Characterisation attribute") +
-  geom_rect(xmin = 1.5, xmax = 11.5,
-            ymin = -Inf, ymax = Inf,
-            size = 1, linetype = 1, 
-            colour = "black", alpha = 0) +
-  labs(title = "Wilson, Alison, Figure 7. TOP" ) +
-  theme_classic() +
-  theme(axis.text.x = element_text(size = 6, colour = "black"),
+  scale_y_discrete(expand = c(0, 0), name = "Characterisation attribute") +
+  # geom_text(aes(x = 85, y = marker2 , label = ISCT),
+  #           size = 2,
+  #           face = "bold") +
+  # coord_cartesian(xlim = c(0, 84), # This focuses the x-axis on the range of interest
+  #                 clip = 'off') +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 8, colour = "black", hjust = 0.5,),
         axis.text.y  = element_text(size = 8, colour = "black"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4),
-        legend.position = "top",
+         legend.position = "top",
+        legend.title = element_blank(),
         legend.text = element_text(size = 8, colour = "black"),
-        legend.key.size = unit(0.2, "in")) +
-  coord_flip()
- 
-ggsave("figs/fig_7_charact_by_marker.tif", 
-       plot = fig7, 
-       device = device,
-       width = fig_w_2, 
-       height = fig_h,
-       units = units,
-       dpi = dpi)
+        legend.key.size = unit(0.1, "in"))
 
-```
 
-# Possible alternative to Fig 7 (and 6b)
-```{r}
-#alt fig
-fig7alt <- test_by_attribute %>% 
+fig5b <- test_by_attribute_summary %>% 
   ggplot() +
-  geom_tile(aes(x = factor(ref_number), y = marker2 , fill = test_status),
-            colour = "white")+
-    scale_fill_manual(values =  c("#BABABA", pal[c(2, 5)]),
-                    name = "Test results",
-                    guide = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5 )) +
-  scale_x_discrete(name = "Reference",
-                     expand = c(0.01, 0)) +
-  scale_y_discrete(expand = c(0, 0), name = "Characterisation attribute") +
-  geom_rect(ymin = 1.5, ymax = 11.5,
-            xmin = -Inf, xmax = Inf,
-            size = 1, linetype = 1,
-            colour = "black", alpha = 0) +
-  labs(title = "Wilson, Alison, Figure 7ALT. TOP" ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(size = 5, colour = "black", 
-                                   angle = 90, hjust = 0, vjust = 0.3),
-        axis.text.y  = element_text(size = 6, colour = "black"),
+  geom_bar(aes(x = n, y = marker2, fill = test_status),
+           stat = "identity", width = 0.8, size = 0) +
+  scale_fill_manual(values =  c("#BABABA", pal[c(3, 5)])) +
+  scale_x_continuous(name = "Number of Articles",
+                     breaks = seq(0, 90, 10),
+                     minor_breaks = seq(0, 90, 10),
+                     limits = c(0, 85),
+                     expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0.5), name = NULL, labels = codes$ISCT) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 10, colour = "black",
+                                    face = "bold", vjust = 0.3),
+        axis.ticks.y = element_blank(),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4),
-        legend.position = "top",
-        legend.text = element_text(size = 8, colour = "black"),
-        legend.key.size = unit(0.2, "in"))
- 
-ggsave("figs/fig_7_charact_by_marker_ALTERNATIVE.tif", 
-       plot = fig7alt, 
+        panel.grid.major.y = element_blank(),
+        legend.position = "none")
+
+
+
+```
+
+### the whole figure 5
+
+
+```{r}
+
+layout <- "
+aaab
+"
+
+fig5 <- fig5a +fig5b &
+  plot_layout(design = layout) &
+  plot_annotation(tag_levels = "A")&
+  geom_hline(yintercept = 1.5) &
+   geom_hline(yintercept = 11.5) &
+    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"),
+          plot.margin = margin(0,0,0,0))
+
+
+
+ggsave("figs/fig_5.svg", 
+       plot = fig5, 
        device = device,
        width = fig_w_2, 
-       height = fig_w,
-       units = units,
-       dpi = dpi)
- 
+       height = fig_h * 1.2,
+       units = units)
 ```
 
 
 
 
 
+## Fig 6 - functionality assessments
 
+### prep
 
-# Figure 8
 ```{r}
+# panel a
 functionality <- dat %>% 
-  select(O, A, C, other_functionality) %>% 
+  select(O, A, C, other) %>% 
   pivot_longer(cols = everything(), names_to = "type", values_to = "status") %>% 
   group_by(type, status) %>% 
-  summarise(n = length(status)) %>% 
+  summarise(n = length(status),
+            pc = paste0(round(100 * n / 84, 1 ), "%")) %>% 
   ungroup(type, status)
 
 # status
-# recode status
-functionality <- functionality %>%
-  mutate(status = recode_factor(status,
-                                p = "Performed",
-                                m = "Mentioned",
-                                n = "Not mentioned"))
-
+# relevel status
 functionality$status <- fct_relevel(functionality$status,
                                     "Not mentioned",
-                                    "Mentioned",
-                                    "Performed")
-levels(functionality$status)
+                                    "Performed, no value reported",
+                                    "Performed, value reported")
 
 # recode functionality
 functionality <- functionality %>%
   mutate(type = recode_factor(type,
-                              other_functionality = "Other functionality",
+                              other = "Other functionality",
                               C = "Chondrogenesis",
                               A = "Adipogenesis",
                               O = "Osteogenesis"))
@@ -662,151 +939,134 @@ functionality$type <- fct_relevel(functionality$type,
                                          "Adipogenesis",
                                          "Osteogenesis")
 
+# panel b
+moa_isct_summary <- dat %>% 
+  group_by(MOA, stem_stromal) %>% 
+  summarise(n = length(MOA),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
 
+# panel c
+diffmoasum <- dat %>% group_by(MOA, differentiation) %>% 
+  summarise(n = length(differentiation))
 ```
 
+
+
+### each panel figure 6
+
 ```{r}
-fig8 <- functionality %>% 
+# panel a
+fig6a <- functionality %>% 
   ggplot() +
-  geom_bar(aes(x = type, y = n, fill = status),
-           stat = "identity", position = position_dodge()) +
-  scale_fill_manual(values =  c("#BABABA", pal[c(2, 5)]),
-                    name = "Assessment",
-                    guide = guide_legend(nrow = 2, title.position = "top", title.hjust = 0.5 )) +
+  geom_bar(aes(x = type, y = n, fill = status, label = pc),
+           stat = "identity") +
+  scale_fill_manual(values =  c("#BABABA", pal[c(3, 5)]),
+                    name = " Functionality assessment",
+                    guide = guide_legend(nrow = 3, title.position = "top", title.hjust = 0.5 )) +
   scale_y_continuous(name = "Number of Articles",
                      breaks = seq(0, 80, 10),
                      minor_breaks = seq(0, 80, 10),
-                     limits = c(0, 80),
+                     limits = c(0, 85),
                      expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0.5), name = "Functionality") +
-  labs(title = "Wilson, Alison, Figure 8. TOP" ) +
+  scale_x_discrete(expand = c(0, 0.5), name = NULL) +
+  geom_text(data = filter(functionality, status == "Not mentioned"), aes(x = type, 50, label = pc) ) +
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4),
         legend.position = "top",
         legend.text = element_text(size = 8, colour = "black"),
-        legend.key.size = unit(0.2, "in")) +
+        legend.key.size = unit(0.1, "in")) +
   coord_flip()
- 
-ggsave("figs/fig_8_functionality_assessment.tif", 
-       plot = fig8, 
-       device = device,
-       width = fig_w, 
-       height = fig_w,
-       units = units,
-       dpi = dpi)
+
+# panel b
+fig6b <- moa_isct_summary %>% 
+  ggplot(aes(x = MOA, y = n, fill = stem_stromal)) +
+  geom_bar(stat = "identity", size = 0) +
+  scale_fill_manual(values = pal, 
+                    guide = guide_legend(nrow = 4, title = NULL)) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 40, 5),
+                     minor_breaks = seq(0, 40, 5),
+                     limits = c(0, 40),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.position = "top",
+        legend.text = element_text(size = 8, colour = "black"),
+        legend.key.size = unit(0.1, "in")) +
+  coord_flip()
+
+# panel c
+fig6c <- diffmoasum %>%
+  ggplot(aes(x = MOA, y = n, fill = differentiation)) +
+  geom_bar(stat = "identity", size = 0) +
+   scale_fill_manual(values = c("#BABABA", pal[5]), 
+                    name = "Differentiation capacity",
+                    labels = c("Not demonstrated", "Demonstrated"),
+                    guide = guide_legend(nrow = 2, 
+                                         title.position = "top",
+                                         title.hjust = 0.5)) +
+  scale_y_continuous(name = "Number of Articles", 
+                     breaks = seq(0, 40, 5),
+                     minor_breaks = seq(0, 40, 5),
+                     limits = c(0, 40),
+                     expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = NULL, labels =NULL) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 8, colour = "black"),
+        axis.text.y  = element_text(size = 8, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.position = "top",
+        legend.text = element_text(size = 8, colour = "black"),
+        legend.key.size = unit(0.1, "in")) +
+  coord_flip()
+
 ```
 
+### the whole figure 6
 
 
-# Figure 9
+```{r}
+
+layout <- "
+abc
+"
+
+fig6 <- fig6a + fig6b + fig6c +
+  plot_layout(design = layout) +
+  plot_annotation(tag_levels = "A")&
+    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"))
+ggsave("figs/fig_6.svg", 
+       plot = fig6, 
+       device = device,
+       width = fig_w_2, 
+       height = 3,
+       units = units)
+
+```
 
 
 ## Relationship between MOA and stem/stromal
 
 ```{r}
-moa_isct_summary <- dat %>% 
-  group_by(MOA, stem_stromal) %>% 
-  summarise(n = length(MOA))
-
-
-dat %>% 
-  group_by(stem_stromal) %>% 
-  summarise(n = length(stem_stromal),
-            pc = n/84)
-
 res <- table(dat$stem_stromal, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
 test_anno <- paste0("There is no significant association between MOA and cell categorisation\n(",
                    res$method, ": p = ", round(res$p.value, 3))
 
 ```
 
-```{r moa-isct}
-moa_isct <- moa_isct_summary %>% 
-  ggplot(aes(x = MOA, y = n, fill = stem_stromal)) +
-  geom_bar(stat = "identity", size = 0) +
-  scale_fill_manual(values = pal, 
-                    guide = guide_legend(nrow = 4, title = NULL)) +
-  scale_y_continuous(name = "Number of Articles", 
-                     breaks = seq(0, 45, 5),
-                     minor_breaks = seq(0, 45, 5),
-                     limits = c(0, 45),
-                     expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
-  labs(title = "Wilson, Alison, Figure 9. TOP") +
-  theme_classic() +
-  theme(axis.text.x = element_text(size = 8, colour = "black",
-                                   angle = -60, hjust = 0),
-        axis.text.y  = element_text(size = 8, colour = "black"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4),
-        plot.caption = element_text(size = 4, hjust = 0),
-        legend.position = c(0.7, 0.8),
-        legend.text = element_text(size = 6, colour = "black"),
-        legend.key.size = unit(0.2, "in"))
-ggsave("figs/fig_9_moa_isct.tif", 
-       plot = moa_isct, 
-       device = device,
-       width = fig_w, 
-       height = fig_w,
-       units = units,
-       dpi = dpi)
-
-```
-
 
 ## Figure 10 assocation between differentiation2 and MOA
-```{r}
-diffmoasum <- dat %>% group_by(MOA, differentiation_2) %>% 
-  summarise(n = length(differentiation_2))
-
-
-```
-
-```{r}
-moa_diff <- diffmoasum %>% 
-  ggplot(aes(x = MOA, y = n, fill = differentiation_2)) +
-  geom_bar(stat = "identity", size = 0) +
-   scale_fill_manual(values = pal[c(2,5)], 
-                    guide = guide_legend(nrow = 4, title = "Differentiation capacity"),
-                    labels = c("Not demonstrated", "Demonstrated")) +
-  scale_y_continuous(name = "Number of Articles", 
-                     breaks = seq(0, 45, 5),
-                     minor_breaks = seq(0, 45, 5),
-                     limits = c(0, 45),
-                     expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
-  labs(title = "Wilson, Alison, Figure 10. TOP") +
-  theme_classic() +
-  theme(axis.text.x = element_text(size = 8, colour = "black",
-                                   angle = -60, hjust = 0),
-        axis.text.y  = element_text(size = 8, colour = "black"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        plot.title = element_text(hjust = 0, size = 4),
-        plot.caption = element_text(size = 4, hjust = 0),
-        legend.position = c(0.7, 0.8),
-        legend.text = element_text(size = 6, colour = "black"),
-        legend.key.size = unit(0.2, "in"),
-        legend.title = element_text(size = 8))
-ggsave("figs/fig_10_moa_diff.tif", 
-       plot = moa_diff, 
-       device = device,
-       width = fig_w, 
-       height = fig_w,
-       units = units,
-       dpi = dpi)
-  
-```
-
-
 
 ```{r}
 res <- table(dat$differentiation_2, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
@@ -891,7 +1151,7 @@ cd_refs_bar <- cd_refs_by_marker %>%
         plot.title = element_text(hjust = 0, size = 4)) +
   coord_flip()
 
-ggsave("figs/fig_x3_cd_refs_bar.tif", 
+ggsave("figs/fig_x3_cd_refs_bar.svg", 
        plot = cd_refs_bar, 
        device = device,
        width = fig_w, 
@@ -943,7 +1203,7 @@ cd_values_point_isct <- cd_dat_summary_values %>%
         # legend.position = c(0.7, 0.8),
         legend.position = "none",
         plot.title = element_text(hjust = 0, size = 4))
-ggsave("figs/fig_x4_cd_values_isct.tif", 
+ggsave("figs/fig_x4_cd_values_isct.svg", 
        plot = cd_values_point_isct, 
        device = device,
        width = fig_w_1.5, 
@@ -982,7 +1242,7 @@ cd_values_point_other <- cd_dat_summary_values %>%
         # legend.position = c(0.7, 0.8),
         legend.position = "none",
         plot.title = element_text(hjust = 0, size = 4))
-ggsave("figs/fig_x5_cd_values_isct.tif", 
+ggsave("figs/fig_x5_cd_values_isct.svg", 
        plot = cd_values_point_other, 
        device = device,
        width = fig_w_1.5, 

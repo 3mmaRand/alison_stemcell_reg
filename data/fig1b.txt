@@ -1,0 +1,19 @@
+data_element item x y
+"BACKGROUND" "Title" 0 7
+"BACKGROUND" "Year" 0 6
+"BACKGROUND" "Country" 0 5
+"BACKGROUND" "Phase" 0 4
+"BACKGROUND" "Indication" 0 3
+"BACKGROUND" "MOA" 0 2
+"BACKGROUND" "Admin. route" 0 1
+"CELL PARAMETERS" "Descriptor" 0 7
+"CELL PARAMETERS" "Tissue source" 0 6
+"CELL PARAMETERS" "Allo/Auto" 0 5
+"CELL PARAMETERS" "Donor sex" 0 4
+"CELL PARAMETERS" "Donor age" 0 3
+"CHARACTERISATION" "Viability" 0 7
+"CHARACTERISATION" "Phenotype" 0 6
+"CHARACTERISATION" "Differentiation" 0 5
+"CHARACTERISATION" "Potency" 0 4
+"CHARACTERISATION" "ISCT Claim" 0 3
+"CHARACTERISATION" "ISCT compliance" 0 2
