@@ -1,0 +1,708 @@
+---
+title: 'Characterisation of MSC in clinical trial reports: analysis of published descriptors'
+author: "Emma Rand"
+date: "16/01/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+```{r pkg}
+library(tidyverse)
+library(waffle)
+library(RColorBrewer)
+library(readxl)
+library(kableExtra)
+```
+
+```{r}
+blues <- brewer.pal(9,"Blues")
+greens <- brewer.pal(9,"Greens")
+excel_pal <- c("#CEDBE6", "#3494BA", "#58B6C0", "#75BDA7", "#84ACB6", "#2683C6", "#373545")
+```
+
+```{r import}
+file <- here::here("data", "Meta-Analysis Data Collection.xlsx")
+
+# added a row for column names more useful
+# # skipped first two rows of of old col names
+
+dat <- read_excel(file, sheet = "Data")
+
+```
+
+Note: there is a 85th line containing only a note in the `NOTES` variable - presumably it belongs elsewhere and was excluded. The note was "compares different papers on bone marrow MSCs, doesn't say anything about prep of cells"
+
+```{r tidy-data}
+# recode country so those with one paper are
+# "Other"
+dat <- dat %>%
+  mutate(Country2 = recode_factor(Country,
+                                Brazil = "Brazil",
+                                China = "China",
+                                Denmark = "Denmark",
+                                Egypt = "Egypt",
+                                India = "India",
+                                Japan = "Japan",
+                                Korea = "Korea",
+                                Netherlands = "Netherlands",
+                                Poland = "Poland",
+                                `Rep Korea` = "Rep Korea",
+                                Russia = "Russia",
+                                Spain = "Spain",
+                                Taiwan = "Taiwan",
+                                USA = "USA",
+                                .default = "Other"))
+
+dat <- dat %>%
+  mutate(Phase_condensed = recode_factor(Phase,
+                               I = "I",
+                               `I/IIa` = "I",
+                                II = "II",
+                                IIa = "II",
+                               IIb = "II",
+                               III = "III"))
+
+# test results - there is no "t" in the data file and there are more
+# blanks values than t's in draft paper fig 6
+dat <- dat %>%
+  mutate(test_results = recode_factor(`Test Results?`,
+                                       n = "2. Average value",
+                                       s = "4. Stated as 'standard phenotype'",
+                                       o = "5. Not discussed",
+                                       y = "1. Phenotypic markers reported",
+                                       t = "3. Tests done but not reported"))
+dat$test_results <- fct_relevel(dat$test_results,
+                              "1. Phenotypic markers reported", 
+                              "2. Average value",
+                              "3. Tests done but not reported",
+                              "4. Stated as 'standard phenotype'",
+                              "5. Not discussed")
+
+
+# dat <- dat %>%
+#   mutate(Test.Results.2 = recode_factor(Test.Results.,
+#                                        `Average value` = "Bulk values",
+#                                        `Phenotypic markers reported` = "Phenotypic markers reported",
+#                                        .default = "No characterisation data"))
+
+
+######### code for "Data Tab copy v1.csv"
+# # column indices for markers
+# firstmarker <- which(colnames(dat) == "CD73")
+# lastmarker <- which(colnames(dat) == "SSEA.4")
+# # vector of marker names
+# markers <- names(dat[firstmarker:lastmarker])
+# 
+# datnum <- dat %>% 
+#   select(markers) %>% 
+#   mutate_all(as.numeric) 
+# 
+# # add the non marker columns
+# notmarkers <- which(!(colnames(dat) %in% markers))
+# datnum <- cbind(dat[notmarkers], datnum)
+# 
+# 
+# dat$Stem.Stromal <- factor(dat$Stem.Stromal)
+# dat$Year <- factor(dat$Year)
+# datnum$Stem.Stromal <- factor(datnum$Stem.Stromal)
+# datnum$Year <- factor(datnum$Year)
+
+
+```
+# Some figures
+
+Resolutions, colours, font types and size, labels, background colours and gridlines etc can be removed / adapted easily. 
+
+Once we've decided on figures, I'll turn them in to high res and big fonts suitable for shrinking.
+
+## fig 1 - search terms
+
+Funnel plot - could be adapted to include the reviews adjacent and aligned with the articles plot.
+
+> to do: Add the Reviews diagram
+
+```{r data-prep-fig1}
+# create data
+# short names for proof of method
+orig <- data.frame(step_names = c("1.mesenchymal",
+                                  "2.article",
+                                  "3.cell tissue etc",
+                                  "4.clinical etc",
+                                  "5.not biotech etc",
+                                  "6.exc conf etc"),
+                   n = c(65706,
+                         47031,
+                         7814,
+                         5502,
+                         2055,
+                         1986))
+
+orig$step_names <- fct_relevel(orig$step_names,
+                               "mesenchymal",
+                               "article",
+                               "cell tissue etc",
+                               "clinical etc",
+                               "not biotech etc",
+                               "exc conf etc")
+
+# prep polygons that connect
+to_poly_orig <- orig %>%
+  arrange(n) %>%
+  mutate(
+    group = row_number(),
+    x1 = 0 + ((1 - n)/2),
+    x4 = n + ((1 - n)/2),
+    x2 = lag(x1), 
+    x3 = lag(x4)) %>%
+  mutate(
+    x2 = ifelse(is.na(x2), x1, x2),
+    x3 = ifelse(is.na(x3), x4, x3)
+  ) %>%
+  gather(xpoint, x, -step_names,-group, -n) %>%
+  arrange(group, xpoint) %>%
+  mutate(y = ifelse(xpoint %in% c("x2", "x3"), group, group + 1))
+
+
+# EXAMPLE
+# Create the placement of the stages in the plot,
+#  by just adding a 0.5 to each row number
+
+
+labels <- orig %>%
+  arrange(n) %>%
+  mutate(y = row_number() + 0.5)
+
+# modify the labels
+labels$step_names2 <- c( "EXCLUDE conference proceedings,\nretracted papers",
+                         "EXCLUDE CATEGORIES (NOT\nbiotechnology applied microbiology oncology\nhaematology, engineering biomedical)",
+                         "REFINE BY SOURCE TITLES\n(EXCLUDE NOT clinical/\ntranslation/regenerative medicine)",
+                         "REFINE BY CATEGORY\ncell tissue engineering\nand transplantation",
+                         "REFINE BY DOCUMENT TYPE\narticle",
+                         "mesenchymal stem cells OR\nmesenchymal stromal cells OR\nMSC AND characterisation AND clinical")
+```
+
+```{r fig1}
+article_funnel <- to_poly_orig %>%
+  ggplot() +
+  geom_polygon(aes(x,
+                   y,
+                   group = group,
+                   fill = step_names),
+               color = "grey10") +
+  geom_label(aes(x = 0,
+                y = y,
+                label = n),
+            data = labels, 
+            size = 8,
+            label.size = 0,
+            label.padding = unit(0.2, "lines"),
+            label.r = unit(0.2, "lines")) +
+  scale_y_continuous(breaks = labels$y,
+                     labels = labels$step_names2) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.title = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y  = element_text(size = 20, colour = "black"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank()) +
+    scale_fill_manual(values = blues)
+
+ggsave("figs/fig_1_Article_search_funnel_blues.png", 
+       plot = article_funnel, 
+       device = "png",
+       width = 30, 
+       height = 20,
+       units = "cm")
+```
+
+## fig 3 papers by country
+
+### bar
+Better, With all the countries. Horizontal makes it easier to read Country names without rotating text.
+
+```{r}
+fig_3_Articles_by_country_blues <- summary_country %>% 
+  ggplot(aes(x = reorder(Country, n), y = n)) +
+  geom_bar(stat = "identity", fill = blues[4], color = "black") +
+  xlab("") +
+  scale_y_continuous(name = "Number of articles", 
+                    breaks = seq(0, 18, 1),
+                    minor_breaks = seq(0, 18, 1),
+                    limits = c(0, 18.5),
+                    expand = c(0, 0)) +
+  scale_x_discrete() +
+  theme_classic() +
+  theme(axis.ticks.y = element_blank(),
+        axis.text  = element_text(size = 20, colour = "black"),
+        axis.title.x = element_text(size = 22)) +
+  coord_flip()
+ggsave("figs/fig_3_Articles_by_country_blues.png", 
+       plot = fig_3_Articles_by_country_blues, 
+       device = "png",
+       width = 25, 
+       height = 25,
+       units = "cm") 
+```
+
+## fig 4 paper by phase
+
+```{r waffle-phase-prep}
+summary_phase <- dat %>%
+  group_by(Phase) %>% 
+  summarise(n = length(Phase),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+summary_phase <- summary_phase %>%
+  mutate(Phase_condensed = recode_factor(Phase,
+                               I = "I",
+                               `I/IIa` = "I",
+                                II = "II",
+                                IIa = "II",
+                               IIb = "II",
+                               III = "III"))
+
+summary_phase_condensed <- dat %>%
+  group_by(Phase_condensed) %>% 
+  summarise(n = length(Phase_condensed),
+            pc = paste0(round(100 * n / 84, 1 ), "%"))
+
+```
+
+Phase can comprise six or three categoires: `r unique(summary_phase$Phase)`; or three categories: `r unique(summary_phase_condensed$Phase_condensed)`
+
+## waffle
+
+### Six phase
+
+```{r}
+parts <- summary_phase$n
+names(parts) <- summary_phase$Phase
+waffle(parts,
+       rows = 7,
+       colors = blues[4:9])
+
+```
+
+### Three phase
+
+```{r}
+parts <- summary_phase_condensed$n
+names(parts) <- summary_phase_condensed$Phase_condensed
+waffle(parts,
+       rows = 7,
+       colors = blues[c(4, 6, 8)])
+
+```
+
+## Bar
+as a bar. can add percentages as annotation if desired. can order bars as required.
+
+### Six phase
+
+```{r}
+summary_phase %>% 
+  ggplot(aes(x = reorder(Phase,n), y = n)) +
+  geom_bar(stat = "identity", fill = blues[4]) +
+  xlab("") +
+  geom_text(aes(y = n / 2, label = pc) ) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 30, 5),
+                    minor_breaks = seq(0, 30, 1),
+                    limits = c(0, 30),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+    theme(panel.background = element_rect(fill = blues[2]),
+        panel.grid.minor.x = element_line(colour = "white", size = 0.3),
+        panel.grid.major.y = element_blank(),
+        axis.ticks = element_blank()) +
+  coord_flip()
+```
+
+### Three phase
+
+```{r}
+summary_phase_condensed %>% 
+  ggplot(aes(x = reorder(Phase_condensed, n), y = n)) +
+  geom_bar(stat = "identity", fill = blues[4]) +
+  xlab("") +
+  geom_text(aes(y = n / 2, label = pc) ) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 60, 10),
+                    minor_breaks = seq(0, 60, 5),
+                    limits = c(0, 60),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+    theme(panel.background = element_rect(fill = blues[2]),
+        panel.grid.minor.x = element_line(colour = "white", size = 0.3),
+        panel.grid.major.y = element_blank(),
+        axis.ticks = element_blank()) +
+  coord_flip()
+```
+
+(will move percent if this figure is selected)
+
+### Three and six phase both indicated
+```{r}
+summary_phase %>% 
+  ggplot(aes(x = reorder(Phase_condensed, n), y = n, fill = Phase)) +
+  geom_bar(stat = "identity", colour = "white") +
+  xlab("") +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 60, 10),
+                    minor_breaks = seq(0, 60, 5),
+                    limits = c(0, 60),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_fill_manual(values = blues[4:9]) +
+    theme(panel.background = element_rect(fill = blues[2]),
+        panel.grid.minor.x = element_line(colour = "white", size = 0.3),
+        panel.grid.major.y = element_blank(),
+        axis.ticks = element_blank()) +
+  coord_flip()
+```
+
+## fig 5 paper msc source per year
+
+```{r}
+summary_tissue <- dat %>% 
+  group_by(Year, Source) %>% 
+  summarise(n = length(Source))
+  
+```
+
+```{r}
+summary_tissue %>% 
+  ggplot(aes(x = factor(Year), y = n, fill = Source)) +
+  geom_bar(stat = "identity", colour = "white") +
+  scale_fill_manual(values = blues[4:9]) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 15, 1),
+                    minor_breaks = seq(0, 15, 1),
+                    limits = c(0, 15),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "") +
+    theme(panel.background = element_rect(fill = blues[2]),
+        panel.grid.minor.y = element_line(colour = "white", size = 0.3),
+        panel.grid.major.x = element_blank())
+```
+
+## fig 6
+
+```{r}
+summary_test <- dat %>% 
+  group_by(test_results) %>% 
+  summarise(n = length(test_results))
+
+summary_test$x <- 1
+tot <- sum(summary_test$n)
+n <- summary_test$n
+summary_test$lab_y <- c(n[1]/2,
+                        n[1] + n[2]/2,
+                        n[1] + n[2] + n[3]/2,
+                        n[1] + n[2] + n[3] + n[4]/2,
+                        n[1] + n[2] + n[3] + n[4] + n[5]/2)
+```
+
+Might you want test colours that indicate 'good' and 'bad' (green and grey maybe)
+```{r}
+summary_test %>% 
+  ggplot(aes(x = x, y = n, fill = rev(test_results)) ) +
+  geom_bar(stat = "identity", colour = "white", width = 0.5) +
+  geom_text(aes(x = x, y = lab_y, label = n), size = 4) +
+  geom_text(aes(x = 1.3, y = lab_y, label = test_results), hjust = 0 ) +
+  scale_fill_manual(values = blues[3:7], name = "Test results") +
+  scale_x_discrete(breaks = seq(0, 3, 1),
+                   limits = c(0, 3)) +
+    theme(panel.background = element_blank(),
+          legend.position = "none",
+          axis.title = element_blank(),
+          axis.text = element_blank(), 
+          axis.ticks = element_blank(),
+          panel.grid.minor.y = element_line(colour = "white", size = 0.3),
+          panel.grid.major.x = element_blank()) 
+```
+
+## figire 7 new phase and tests reported
+
+### stacked by numbers
+```{r}
+
+summary_phase_test <- dat %>%
+  group_by(Phase_condensed, test_results) %>% 
+  summarise(n = length(Phase))
+```
+Might you want test colours that indicate 'good' and 'bad' (green and grey maybe)
+
+```{r}
+summary_phase_test %>% 
+  ggplot(aes(x = Phase_condensed, y = n, fill = test_results)) +
+  geom_bar(stat = "identity", colour = "white") +
+  scale_fill_manual(values = blues[3:7], name = "Test results") +
+  scale_y_continuous(name = "Number of Articles",
+                    breaks = seq(0, 55, 10),
+                    minor_breaks = seq(0, 55, 5),
+                    limits = c(0, 55),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "Phase") +
+    theme(panel.background = element_rect(fill = blues[2]),
+        panel.grid.minor.y = element_line(colour = "white", size = 0.3),
+        panel.grid.major.x = element_blank())
+```
+
+### stacked by percent
+
+```{r}
+summary_phase_test %>% 
+  ggplot(aes(x = Phase_condensed, y = n)) +
+  geom_bar(aes(fill = test_results), 
+           stat = "identity", 
+           colour = "white", 
+           position = "fill") +
+  scale_fill_manual(values = blues[3:7], name = "Test results") +
+  scale_y_continuous(name = "Proportion of Articles by Phase",
+                     breaks = seq(0, 1.1, 0.1),
+                     # minor_breaks = seq(0, 1.1, 0.1),
+                     # limits = c(0, 1.2),
+                     expand = c(0, 0.1)) +
+   scale_x_discrete(expand = c(0, 0), name = "Phase") +
+    theme(panel.background = element_rect(fill = blues[2]),
+                panel.grid = element_blank()) +
+  geom_text(data = summary_phase_condensed, 
+            aes(x = Phase_condensed, y = 1.05,
+                label = paste("n = ",n)))
+```
+
+## Figure 9
+
+There are some inconsistencies in the data file columns for markers (most have three associated columns (value, status and an unnamed one which appears to be a qualifier for the value and which I have named qualifier) but some have one a value but not status. It's not obv what the status should be in some cases.
+
+The markers in this figure thus differ because I'm missed out the unknown status ones.
+
+There's also a single "not stated" value remianing
+
+```{r}
+dat2 <- dat %>% 
+  select(contains("_status")) %>% 
+  rename_all(funs(stringr::str_replace(., fixed("_status"),"") )) %>% 
+  gather(key = "marker", value = "status") %>%
+  mutate(ISCT_pheno = recode_factor(marker,
+                                CD73 = TRUE,
+                                CD90 = TRUE,
+                                CD105 = TRUE,
+                                CD34 = TRUE,
+                                CD45 = TRUE,
+                                CD11b = TRUE,
+                                CD14 = TRUE,
+                                CD79a = TRUE,
+                                CD19 = TRUE,
+                                `HLA-DR` = TRUE,
+                                .default = FALSE))  
+# relevel the factor
+dat2$marker <- fct_relevel(dat2$marker,
+                           "viability", 
+                           "CD73", 
+                           "CD90", 
+                           "CD105",
+                           "CD34", 
+                           "CD45", 
+                           "CD11b",
+                           "CD14", 
+                           "CD79a",
+                           "CD19",
+                           "HLA-DR",
+                           "CD133",
+                           "CD166",
+                           "CD29",
+                           "CD44")
+charc_marker <- dat2 %>%
+  group_by(marker, status) %>% 
+  summarise(n = length(marker))
+charc_marker$marker <- fct_relevel(charc_marker$marker,
+                           "viability", 
+                           "CD73", 
+                           "CD90", 
+                           "CD105",
+                           "CD34", 
+                           "CD45", 
+                           "CD11b",
+                           "CD14", 
+                           "CD79a",
+                           "CD19",
+                           "HLA-DR",
+                           "CD133",
+                           "CD166",
+                           "CD29",
+                           "CD44")
+```
+
+```{r}
+charc_marker %>% 
+  ggplot(aes(x = marker, y = n)) +
+  geom_bar(aes(fill = status), 
+           stat = "identity",
+           position = "fill",
+           colour = "white") +
+  scale_fill_manual(values = blues[4:7], name = "Status") +
+  scale_y_continuous(name = "Proportion of Articles") +
+  scale_x_discrete(expand = c(0, 0), name = "Marker") +
+  theme(panel.background = element_rect(fill = blues[2]),
+        panel.grid = element_blank(),)
+
+
+```
+
+
+## Relationship between MOA and stem/stromal
+
+```{r}
+moa_isct_summary <- dat %>% 
+  group_by(MOA, `Stem/Stromal`) %>% 
+  summarise(n = length(MOA))
+
+res <- table(dat$`Stem/Stromal`, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
+
+
+```
+
+
+There is no significant association between MOA and cell categorisation (`r res$method`:  $p$ = `r res$p.value`).
+
+```{r}
+moa_isct_summary %>% 
+  ggplot(aes(x = factor(MOA), y = n, fill = `Stem/Stromal`)) +
+  geom_bar(stat = "identity", colour = "white") +
+  scale_fill_manual(values = blues[5:8]) +
+  scale_y_continuous(name = "Number of Articles", 
+                    breaks = seq(0, 45, 5),
+                    minor_breaks = seq(0, 45, 5),
+                    limits = c(0, 45),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "MOA") +
+    theme(panel.background = element_rect(fill = blues[2]),
+        panel.grid.minor.y = element_line(colour = "white", size = 0.3),
+        panel.grid.major.x = element_blank())
+```
+
+## Relationship between types of differentiation (OAC) and MOA
+
+There are five combinations for O, A and C potency. `y` is demonstrated, `m` is claimed but not demonstrated, `n` is not mentioned. These were recoded into a single variable, `potency` as follows:
+```{r}
+# there are five combinations of 
+dat <- dat %>%
+  mutate(potency = ifelse(O == "y" &
+                            A == "y" &
+                            C == "y",
+                          "demonstrated tripotency",
+                          ifelse(O == "n" &
+                                   A == "n" &
+                                   C == "n",
+                                 "not mentioned",
+                                 ifelse(O == "y" &
+                                          A == "y" &
+                                          C == "n",
+                                        "demonstrated bipotency (OA)",
+                                        ifelse(O == "m"
+                                               & A == "m" &
+                                                 C == "n",
+                                               "claimed bipotency (OA)",
+                                               ifelse(O == "m" &
+                                                  A == "m" &
+                                                  C == "m",
+                                                  "claimed tripotency", NA))))))
+```
+
+```{r}
+dat %>% 
+  group_by(O, A, C, potency) %>% 
+  summarise(n = length(O)) %>% 
+  kable(format = "html") %>% 
+  kable_styling()
+
+```
+
+```{r}
+res <- table(dat$potency, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
+
+
+```
+
+There is no significant association between MOA and cell categorisation (`r res$method`:  $p$ = `r res$p.value`).
+
+
+
+```{r}
+moa_potency_summary <- dat %>% 
+  group_by(potency, MOA) %>% 
+  summarise(n = length(MOA))
+```
+
+
+```{r}
+moa_potency_summary %>% 
+  ggplot(aes(x = factor(MOA), y = n, fill = potency)) +
+  geom_bar(stat = "identity", colour = "white") +
+  scale_fill_manual(values = blues[4:8]) +
+  scale_y_continuous(name = "Number of Articles",
+                    breaks = seq(0, 45, 5),
+                    minor_breaks = seq(0, 45, 5),
+                    limits = c(0, 45),
+                    expand = c(0, 0)) +
+  scale_x_discrete(expand = c(0, 0), name = "MOA") +
+    theme(panel.background = element_rect(fill = blues[2]),
+        panel.grid.minor.y = element_line(colour = "white", size = 0.3),
+        panel.grid.major.x = element_blank())
+```
+
+## Claimed compliance vs categ compliance
+
+```{r}
+vals <- unique(dat$`ISCT compliance`)
+ref <- dat$`Ref #`[is.na(dat$`ISCT compliance`)]
+```
+
+The values in `ISCT compliance` are: `r vals`
+Probably the empty cell (formal NA in r) should be  "n/a" (a string). It's reference
+`r ref`
+
+```{r}
+
+dat %>% 
+  group_by(`ISCT compliance`,`ISCT claimed`) %>%
+  summarise(n = length(`ISCT claimed`)) %>% 
+  kable() %>% 
+  kable_styling()
+
+```
+These results are so clear (all 14 of the papers that claim compliance do not demonstrate it; no other papers demonstrate it) that no further analysis is necessary.
+
+## Relevance for indication, stem vs stromal
+There are 50 different indications mostly with a single ref. This makes it difficult to deterimine if there is any relationalship between the nature of the ndication and whether treatment was with stem of stromal cells.
+
+```{r}
+dat %>% 
+  group_by(Indication, `Stem/Stromal`) %>% 
+  summarise(n = length(`Stem/Stromal`)) %>% 
+  ggplot(aes(x = reorder(Indication, n), y = n, fill = `Stem/Stromal`)) +
+  geom_col() +
+  coord_flip()
+```
+
+```{r}
+ind <- dat %>% 
+  group_by(Indication) %>% 
+  summarise(n = length(potency)) %>% 
+  filter(n > 1)
+
+dat %>% 
+  group_by(Indication,potency) %>% 
+  summarise(n = length(Indication)) %>% 
+  filter(n > 1)
+```
+
