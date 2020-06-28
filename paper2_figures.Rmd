@@ -281,7 +281,9 @@ summary_route <- dat %>%
 #by country
 country_bar <- summary_country %>% 
   ggplot(aes(x = reorder(country, n), y = n)) +
-  geom_bar(stat = "identity", fill = pal[4],
+  geom_bar(stat = "identity", 
+           # fill = pal[4],
+           fill = "black",
            size = 0, width = 0.8) +
   xlab("") +
   scale_y_continuous(name = NULL, 
@@ -305,7 +307,11 @@ country_bar <- summary_country %>%
 # by phase
 phase_bar <- summary_phase %>% 
   ggplot(aes(x = reorder(phase,n), y = n)) +
-  geom_bar(stat = "identity", fill = pal[4], size = 0, width = 0.8) +
+  geom_bar(stat = "identity", 
+           # fill = pal[4],
+           fill = "black",
+           size = 0, 
+           width = 0.8) +
   xlab("") +
  # geom_text(aes(y = n + 4, label = pc) ) +
   scale_y_continuous(name = NULL, 
@@ -328,7 +334,11 @@ phase_bar <- summary_phase %>%
 # by indication
 indication_bar <- summary_indication %>% 
   ggplot(aes(x = reorder(indication, n), y = n)) +
-  geom_bar(stat = "identity", fill = pal[4], size = 0, width = 0.8) +
+  geom_bar(stat = "identity", 
+           # fill = pal[4], 
+           fill = "black", 
+           size = 0, 
+           width = 0.8) +
   xlab("") +
   scale_y_continuous(name = NULL, 
                      breaks = seq(0, 12, 2),
@@ -350,7 +360,11 @@ indication_bar <- summary_indication %>%
 # by route
 route_bar <- summary_route %>% 
   ggplot(aes(x = reorder(route, n), y = n)) +
-  geom_bar(stat = "identity", fill = pal[4], size = 0, width = 0.8) +
+  geom_bar(stat = "identity", 
+           # fill = pal[4],
+            fill = "black",
+           size = 0, 
+           width = 0.8) +
   xlab("") +
 #  geom_text(aes(y = n + 3, label = pc) ) +
   scale_y_continuous(name = NULL, 
@@ -386,14 +400,14 @@ ad
 bd
 bd
 bd
-bd
+cd
 cd
 cd
 cd
 "
 
 
-fig2 <- country_bar  + route_bar+ phase_bar+ indication_bar +
+fig2 <- country_bar + phase_bar + route_bar + indication_bar +
   plot_layout(design = layout) +
   plot_annotation(caption = "Number of Articles",
                   tag_levels = "A")&
@@ -401,7 +415,7 @@ fig2 <- country_bar  + route_bar+ phase_bar+ indication_bar +
           plot.caption = element_text(size = 9, hjust = 0.5, face = "plain"))
 
 
-ggsave("figs/fig_2.svg", 
+ggsave("figs/fig_2_black.svg", 
        plot = fig2, 
        device = device,
        width = fig_w_2, 
@@ -442,7 +456,11 @@ summary_stem_stromal <- dat %>%
 # source
 source_bar <- summary_source %>% 
   ggplot(aes(x = source, y = n)) +
-  geom_bar(stat = "identity",fill = pal[4], size = 0, width = 0.8) +
+  geom_bar(stat = "identity",
+           # fill = pal[4],
+           fill = "black",
+           size = 0, 
+           width = 0.8) +
   scale_y_continuous(name = "Number of Articles",
                     breaks = seq(0, 50, 10),
                     minor_breaks = seq(0, 50, 10),
@@ -460,7 +478,11 @@ source_bar <- summary_source %>%
 # allo - auto
 allo_auto_bar <- summary_allo_auto %>% 
   ggplot(aes(x = allo_auto, y = n)) +
-  geom_bar(stat = "identity",fill = pal[4], size = 0, width = 0.8) +
+  geom_bar(stat = "identity",
+           # fill = pal[4], 
+           fill = "black",
+           size = 0, 
+           width = 0.8) +
   scale_y_continuous(name = NULL,
                     breaks = seq(0, 50, 10),
                     minor_breaks = seq(0, 50, 10),
@@ -480,7 +502,11 @@ allo_auto_bar <- summary_allo_auto %>%
 # stem_stomal
 stem_stromal_bar <- summary_stem_stromal %>%
   ggplot(aes(x = stem_stromal, y = n)) +
-  geom_bar(stat = "identity",fill = pal[4], size = 0, width = 0.8) +
+  geom_bar(stat = "identity",
+           # fill = pal[4], 
+           fill = "black",
+           size = 0, 
+           width = 0.8) +
   scale_y_continuous(name = NULL,
                     breaks = seq(0, 50, 10),
                     minor_breaks = seq(0, 50, 10),
@@ -512,7 +538,7 @@ fig3 <- source_bar  + allo_auto_bar+ stem_stromal_bar +
           plot.caption = element_text(size = 9, hjust = 0.5, vjust = 1, face = "plain"))
 
 
-ggsave("figs/fig_3.svg", 
+ggsave("figs/fig_3_black.svg", 
        plot = fig3, 
        device = device,
        width = fig_w_1.5, 
@@ -671,8 +697,7 @@ test_cols <- str_replace(test_cols, "_test", "")
 # set the levels in that order
 test_by_attribute$marker2 <- factor(test_by_attribute$marker2, 
                                     levels = test_cols)
-test_by_attribute$ref_number <- factor(test_by_attribute$ref_number, 
-                                    levels = c(levels(test_by_attribute$ref_number), "Total P", "Total M"))
+test_by_attribute$ref_number <- factor(test_by_attribute$ref_number)
 # status
 # recode status
 test_by_attribute <- test_by_attribute %>%
@@ -945,9 +970,36 @@ moa_isct_summary <- dat %>%
   summarise(n = length(MOA),
             pc = paste0(round(100 * n / 84, 1 ), "%"))
 
+moa_isct_summary$stem_stromal <- fct_relevel(moa_isct_summary$stem_stromal,
+                                         "Stem",
+                                         "Stromal",
+                                         "Multipotent Stromal",
+                                         "Regenerative")
+
+moa_isct_summary$MOA <- fct_relevel(moa_isct_summary$MOA,
+                                    "Not stated",
+                                    "Multiple",
+                                    "Differentiation",
+                                    "Immune",
+                                    "Paracrine")
+
+
+
 # panel c
 diffmoasum <- dat %>% group_by(MOA, differentiation) %>% 
   summarise(n = length(differentiation))
+
+diffmoasum$MOA <- fct_relevel(diffmoasum$MOA,
+                                     "Not stated",
+                                    "Multiple",
+                                    "Differentiation",
+                                    "Immune",
+                                    "Paracrine")
+
+diffmoasum$differentiation <- fct_relevel(diffmoasum$differentiation,
+                                          "No",
+                                          "Yes")
+
 ```
 
 
@@ -959,20 +1011,25 @@ diffmoasum <- dat %>% group_by(MOA, differentiation) %>%
 fig6a <- functionality %>% 
   ggplot() +
   geom_bar(aes(x = type, y = n, fill = status, label = pc),
-           stat = "identity") +
+           stat = "identity", size = 0) +
   scale_fill_manual(values =  c("#BABABA", pal[c(3, 5)]),
-                    name = " Functionality assessment",
-                    guide = guide_legend(nrow = 3, title.position = "top", title.hjust = 0.5 )) +
+                    name = " Functionality",
+                    guide = guide_legend(nrow = 4,
+                                         title.position = "top",
+                                         title.hjust = 0 )) +
   scale_y_continuous(name = "Number of Articles",
                      breaks = seq(0, 80, 10),
                      minor_breaks = seq(0, 80, 10),
                      limits = c(0, 85),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0.5), name = NULL) +
-  geom_text(data = filter(functionality, status == "Not mentioned"), aes(x = type, 50, label = pc) ) +
+  geom_text(data = filter(functionality, 
+                          status == "Not mentioned"),
+            aes(x = type, 50, label = pc) ) +
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
+        plot.margin = margin(t = 0, r = 30),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
@@ -986,16 +1043,20 @@ fig6b <- moa_isct_summary %>%
   ggplot(aes(x = MOA, y = n, fill = stem_stromal)) +
   geom_bar(stat = "identity", size = 0) +
   scale_fill_manual(values = pal, 
-                    guide = guide_legend(nrow = 4, title = NULL)) +
+                    name = "Nomenclature",
+                    guide = guide_legend(nrow = 4,
+                                         title.position = "top",
+                                         title.hjust = 0 )) +
   scale_y_continuous(name = "Number of Articles", 
                      breaks = seq(0, 40, 5),
                      minor_breaks = seq(0, 40, 5),
-                     limits = c(0, 40),
+                     limits = c(0, 42),
                      expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0), name = "Mechanism of action") +
+  scale_x_discrete(expand = c(0, 0), name = "MOA") +
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
+        plot.margin = margin(t = 0, r = 0, l = 0),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
@@ -1011,18 +1072,19 @@ fig6c <- diffmoasum %>%
    scale_fill_manual(values = c("#BABABA", pal[5]), 
                     name = "Differentiation capacity",
                     labels = c("Not demonstrated", "Demonstrated"),
-                    guide = guide_legend(nrow = 2, 
+                    guide = guide_legend(nrow = 4, 
                                          title.position = "top",
-                                         title.hjust = 0.5)) +
+                                         title.hjust = 0)) +
   scale_y_continuous(name = "Number of Articles", 
                      breaks = seq(0, 40, 5),
                      minor_breaks = seq(0, 40, 5),
-                     limits = c(0, 40),
+                     limits = c(0, 42),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0), name = NULL, labels =NULL) +
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
+        plot.margin = margin(t = 0, r = 0, l = 0),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
@@ -1059,7 +1121,8 @@ ggsave("figs/fig_6.svg",
 ## Relationship between MOA and stem/stromal
 
 ```{r}
-res <- table(dat$stem_stromal, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
+res <- table(dat$stem_stromal, dat$MOA) %>%
+  fisher.test(simulate.p.value = TRUE)
 test_anno <- paste0("There is no significant association between MOA and cell categorisation\n(",
                    res$method, ": p = ", round(res$p.value, 3))
 
