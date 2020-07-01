@@ -14,25 +14,17 @@ knitr::opts_chunk$set(echo = FALSE,
 ```
 
 # Figures specification
-* titled
-* cited in numerical order in the text using Arabic numbers. 
-* no additional charges for color. 
-* submitted as individual files
-* labeled with the Corresponding Author name, the appropriate figure number, and  orientation (e.g., “top”)
-* Figures may be submitted as multipart panels.
-*  *.svg* or .eps 
-* final publication size; 1-column width or, if necessary, 1½ column width. The  2-column width should not be used unless necessary.
-* 1.0 column = 3.2 Inches, 8.2 Centimeters, 19.25 Picas
-* 1.5 column = 4.5 Inches, 11.4 Centimeters, 27.00 Picas
-* 2.0 column = 5.8 Inches, 14.8 Centimeters, 35.00 Picas
-* height of all figures <= to 9.6inches / 24.5 cm / 58 picas.
-* Calibri font sub sans serif Arial
-* Multipanel labeled using uppercase 12-point Calibri Bold. 
-* minimum text size of 6 points
-* bold enough to be easily read after reduction, as should all symbols used in the * figure. Line or bar graphs or flow charts with text should be created in black and white, not shades of gray, which are difficult to reproduce in even tones. If more than two sets of data are represented, use of fill patterns or colors (not gray) is suggested to present the data clearly.
-* Minimum resolution is 300 dpi for color and grayscale figures, 600 dpi for  combination halftones, and 1000 dpi for line art.
+Vector-based files 
+150 to 300 dots per inch (dpi) for initial submission. A higher resolution applies for figures submitted at the revision stage.
 
+Fit on single 8.5" × 11" or A4 paper
+Preferably at:
+1 column - 3.5 inches
+1.5 columns - 5.0 inches
+2 columns = 7.3 inches
 
+The figure title should be at the beginning of the figure legend
+Include the fig id on same page that includes the figure
 
 ```{r pkg}
 library(tidyverse)
@@ -51,11 +43,11 @@ pal <- viridisLite::viridis(6)
 
 # figure saving settings
 units = "in"
-fig_w <- 3.5
-fig_w_1.5 <- 5
-fig_w_2 <- 7.3
-fig_h <- fig_w
-device <- "svg"
+fig_w <- 3.5 # one col
+fig_w_1.5 <- 5 # 1.5 col
+fig_w_2 <- 7.3 # 2 col
+fig_h <- fig_w 
+
 
 ```
 
@@ -232,7 +224,7 @@ fig1 <- article_funnel + data_collection +
 
 ggsave("figs/fig_1.svg", 
        plot = fig1, 
-       device = device,
+       device = "svg",
        width = fig_w, 
        height = fig_h*1.6,
        units = units)
@@ -417,7 +409,7 @@ fig2 <- country_bar + phase_bar + route_bar + indication_bar +
 
 ggsave("figs/fig_2_black.svg", 
        plot = fig2, 
-       device = device,
+       device = "svg",
        width = fig_w_2, 
        height = fig_h*2,
        units = units)
@@ -540,7 +532,7 @@ fig3 <- source_bar  + allo_auto_bar+ stem_stromal_bar +
 
 ggsave("figs/fig_3_black.svg", 
        plot = fig3, 
-       device = device,
+       device = "svg",
        width = fig_w_1.5, 
        height = fig_h,
        units = units)
@@ -593,6 +585,7 @@ test_bar <- summary_test %>%
         axis.text.x = element_text(size = 8, colour = "black"),
         axis.ticks.y = element_blank(),
         axis.text.y  = element_text(size = 8, colour = "black"),
+        plot.margin = margin(t = 0, r = 30),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
@@ -614,6 +607,7 @@ phase_test <- summary_phase_test %>%
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
+        plot.margin = margin(t = 0, r = 0, l = 0),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
@@ -623,7 +617,7 @@ phase_test <- summary_phase_test %>%
 # 
 markerp_bar <- summary_marker_p_count %>% 
   ggplot(aes(x = marker_p_count, y = n)) +
-  geom_bar(stat = "identity", fill = pal[6], size = 0, width = 0.8) +
+  geom_bar(stat = "identity", fill = "black", size = 0, width = 0.8) +
   scale_y_continuous(name = NULL, 
                      breaks = seq(0, 12, 2),
                      minor_breaks = seq(0, 12, 2),
@@ -639,7 +633,8 @@ markerp_bar <- summary_marker_p_count %>%
         axis.text.y  = element_text(size = 8, colour = "black"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
-        panel.grid.minor.y = element_blank()) 
+        panel.grid.minor.y = element_blank(),
+        plot.margin = margin(t = 0, r = 0, l = 0)) 
 
 ```
 
@@ -663,7 +658,7 @@ fig4 <- test_bar + phase_test + markerp_bar +
 
 ggsave("figs/fig_4.svg", 
        plot = fig4, 
-       device = device,
+       device = "svg",
        width = fig_w_2, 
        height = 2.2,
        units = units)
@@ -919,7 +914,7 @@ fig5 <- fig5a +fig5b &
 
 ggsave("figs/fig_5.svg", 
        plot = fig5, 
-       device = device,
+       device = "svg",
        width = fig_w_2, 
        height = fig_h * 1.2,
        units = units)
@@ -1106,11 +1101,11 @@ abc
 
 fig6 <- fig6a + fig6b + fig6c +
   plot_layout(design = layout) +
-  plot_annotation(tag_levels = "A")&
+  plot_annotation(tag_levels = "A") &
     theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"))
 ggsave("figs/fig_6.svg", 
        plot = fig6, 
-       device = device,
+       device = "svg",
        width = fig_w_2, 
        height = 3,
        units = units)
@@ -1216,7 +1211,7 @@ cd_refs_bar <- cd_refs_by_marker %>%
 
 ggsave("figs/fig_x3_cd_refs_bar.svg", 
        plot = cd_refs_bar, 
-       device = device,
+       device = "svg",
        width = fig_w, 
        height = fig_w,
        units = units,
@@ -1268,7 +1263,7 @@ cd_values_point_isct <- cd_dat_summary_values %>%
         plot.title = element_text(hjust = 0, size = 4))
 ggsave("figs/fig_x4_cd_values_isct.svg", 
        plot = cd_values_point_isct, 
-       device = device,
+       device = "svg",
        width = fig_w_1.5, 
        height = fig_w,
        units = units,
@@ -1307,7 +1302,7 @@ cd_values_point_other <- cd_dat_summary_values %>%
         plot.title = element_text(hjust = 0, size = 4))
 ggsave("figs/fig_x5_cd_values_isct.svg", 
        plot = cd_values_point_other, 
-       device = device,
+       device = "svg",
        width = fig_w_1.5, 
        height = fig_w,
        units = units,

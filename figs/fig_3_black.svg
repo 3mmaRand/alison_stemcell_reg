@@ -123,10 +123,10 @@
   </clipPath>
 </defs>
 <rect x='252.14' y='19.30' width='96.90' height='134.51' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' clip-path='url(#cpMjUyLjE0fDM0OS4wNHwxNTMuODF8MTkuMzA=)' />
-<rect x='252.14' y='151.56' width='20.40' height='2.24' style='stroke-width: 0.00; stroke: none; stroke-linecap: square; stroke-linejoin: miter; fill: #000000;' clip-path='url(#cpMjUyLjE0fDM0OS4wNHwxNTMuODF8MTkuMzA=)' />
-<rect x='277.64' y='151.56' width='20.40' height='2.24' style='stroke-width: 0.00; stroke: none; stroke-linecap: square; stroke-linejoin: miter; fill: #000000;' clip-path='url(#cpMjUyLjE0fDM0OS4wNHwxNTMuODF8MTkuMzA=)' />
-<rect x='303.14' y='28.26' width='20.40' height='125.54' style='stroke-width: 0.00; stroke: none; stroke-linecap: square; stroke-linejoin: miter; fill: #000000;' clip-path='url(#cpMjUyLjE0fDM0OS4wNHwxNTMuODF8MTkuMzA=)' />
-<rect x='328.64' y='95.52' width='20.40' height='58.29' style='stroke-width: 0.00; stroke: none; stroke-linecap: square; stroke-linejoin: miter; fill: #000000;' clip-path='url(#cpMjUyLjE0fDM0OS4wNHwxNTMuODF8MTkuMzA=)' />
+<rect x='252.14' y='95.52' width='20.40' height='58.29' style='stroke-width: 0.00; stroke: none; stroke-linecap: square; stroke-linejoin: miter; fill: #000000;' clip-path='url(#cpMjUyLjE0fDM0OS4wNHwxNTMuODF8MTkuMzA=)' />
+<rect x='277.64' y='28.26' width='20.40' height='125.54' style='stroke-width: 0.00; stroke: none; stroke-linecap: square; stroke-linejoin: miter; fill: #000000;' clip-path='url(#cpMjUyLjE0fDM0OS4wNHwxNTMuODF8MTkuMzA=)' />
+<rect x='303.14' y='151.56' width='20.40' height='2.24' style='stroke-width: 0.00; stroke: none; stroke-linecap: square; stroke-linejoin: miter; fill: #000000;' clip-path='url(#cpMjUyLjE0fDM0OS4wNHwxNTMuODF8MTkuMzA=)' />
+<rect x='328.64' y='151.56' width='20.40' height='2.24' style='stroke-width: 0.00; stroke: none; stroke-linecap: square; stroke-linejoin: miter; fill: #000000;' clip-path='url(#cpMjUyLjE0fDM0OS4wNHwxNTMuODF8MTkuMzA=)' />
 <defs>
   <clipPath id='cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA='>
     <rect x='0.00' y='0.00' width='360.00' height='252.00' />
@@ -150,10 +150,10 @@
 <polyline points='287.84,156.55 287.84,153.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)' />
 <polyline points='313.34,156.55 313.34,153.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)' />
 <polyline points='338.84,156.55 338.84,153.81 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)' />
-<g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text transform='translate(259.58,159.48) rotate(-285)' style='font-size: 8.00px; font-family: Arial;' textLength='68.92px' lengthAdjust='spacingAndGlyphs'>Multipotent Stromal</text></g>
-<g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text transform='translate(285.08,159.48) rotate(-285)' style='font-size: 8.00px; font-family: Arial;' textLength='47.59px' lengthAdjust='spacingAndGlyphs'>Regenerative</text></g>
-<g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text transform='translate(310.58,159.48) rotate(-285)' style='font-size: 8.00px; font-family: Arial;' textLength='18.67px' lengthAdjust='spacingAndGlyphs'>Stem</text></g>
-<g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text transform='translate(336.08,159.48) rotate(-285)' style='font-size: 8.00px; font-family: Arial;' textLength='27.56px' lengthAdjust='spacingAndGlyphs'>Stromal</text></g>
+<g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text transform='translate(259.58,159.48) rotate(-285)' style='font-size: 8.00px; font-family: Arial;' textLength='27.56px' lengthAdjust='spacingAndGlyphs'>Stromal</text></g>
+<g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text transform='translate(285.08,159.48) rotate(-285)' style='font-size: 8.00px; font-family: Arial;' textLength='18.67px' lengthAdjust='spacingAndGlyphs'>Stem</text></g>
+<g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text transform='translate(310.58,159.48) rotate(-285)' style='font-size: 8.00px; font-family: Arial;' textLength='68.92px' lengthAdjust='spacingAndGlyphs'>Multipotent Stromal</text></g>
+<g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text transform='translate(336.08,159.48) rotate(-285)' style='font-size: 8.00px; font-family: Arial;' textLength='47.59px' lengthAdjust='spacingAndGlyphs'>Regenerative</text></g>
 <g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text x='231.81' y='18.35' style='font-size: 9.00px; font-weight: bold; font-family: Arial;' textLength='6.50px' lengthAdjust='spacingAndGlyphs'>C</text></g>
 <g clip-path='url(#cpMC4wMHwzNjAuMDB8MjUyLjAwfDAuMDA=)'><text x='165.74' y='244.63' style='font-size: 9.00px; font-family: Arial;' textLength='28.52px' lengthAdjust='spacingAndGlyphs'>Source</text></g>
 </svg>
