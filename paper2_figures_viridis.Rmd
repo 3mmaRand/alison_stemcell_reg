@@ -39,7 +39,6 @@ library(tidyverse)
 library(RColorBrewer)
 library(readxl)
 library(kableExtra)
-library(tiff)
 library(grid)
 library(patchwork)
 
