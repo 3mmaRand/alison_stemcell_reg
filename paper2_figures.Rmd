@@ -4,7 +4,7 @@ author: "Emma Rand"
 date: "16/01/2020"
 output:
   html_document: default
-  svg_document: default
+  wmf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -218,13 +218,13 @@ bbbbbbbbbbbbbbbbbbbb
 
 fig1 <- article_funnel + data_collection + 
   plot_layout(design = layout) +
-  plot_annotation(tag_levels = "A")&
+  plot_annotation(tag_levels = "A") &
     theme(plot.tag = element_text(size = 9, hjust = 1, face = "bold"))
 
 
-ggsave("figs/fig_1.svg", 
+ggsave("figs/fig_1.wmf", 
        plot = fig1, 
-       device = "svg",
+       device = "wmf",
        width = fig_w, 
        height = fig_h*1.6,
        units = units)
@@ -307,9 +307,9 @@ phase_bar <- summary_phase %>%
   xlab("") +
  # geom_text(aes(y = n + 4, label = pc) ) +
   scale_y_continuous(name = NULL, 
-                     breaks = seq(0, 35, 10),
-                     minor_breaks = seq(0, 35, 1),
-                     limits = c(0, 35),
+                     breaks = seq(0, 20, 10),
+                     minor_breaks = seq(0, 20, 1),
+                     limits = c(0, 25),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
   theme_classic() +
@@ -407,9 +407,9 @@ fig2 <- country_bar + phase_bar + route_bar + indication_bar +
           plot.caption = element_text(size = 9, hjust = 0.5, face = "plain"))
 
 
-ggsave("figs/fig_2_black.svg", 
+ggsave("figs/fig_2_black.wmf", 
        plot = fig2, 
-       device = "svg",
+       device = "wmf",
        width = fig_w_2, 
        height = fig_h*2,
        units = units)
@@ -522,17 +522,17 @@ aaabbbcccc
 "
 
 
-fig3 <- source_bar  + allo_auto_bar+ stem_stromal_bar +
+fig3 <- source_bar  + allo_auto_bar + stem_stromal_bar +
   plot_layout(design = layout) +
   plot_annotation(caption = "Source",
-                  tag_levels = "A")&
+                  tag_levels = "A") &
     theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"),
           plot.caption = element_text(size = 9, hjust = 0.5, vjust = 1, face = "plain"))
 
 
-ggsave("figs/fig_3_black.svg", 
+ggsave("figs/fig_3_black.wmf", 
        plot = fig3, 
-       device = "svg",
+       device = "wmf",
        width = fig_w_1.5, 
        height = fig_h,
        units = units)
@@ -641,10 +641,6 @@ markerp_bar <- summary_marker_p_count %>%
 
 ### whole fig 4
 ```{r fig_4-layout}
-layout <- "
-#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-bbbcccccccccccccccccccccccccccccccccccc
-"
 
 layout <- "
 aaaaaabbbcccc
@@ -652,13 +648,13 @@ aaaaaabbbcccc
 
 fig4 <- test_bar + phase_test + markerp_bar +
   plot_layout(design = layout) +
-  plot_annotation(tag_levels = "A")&
+  plot_annotation(tag_levels = "A") &
     theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"))
 
 
-ggsave("figs/fig_4.svg", 
+ggsave("figs/fig_4.wmf", 
        plot = fig4, 
-       device = "svg",
+       device = "wmf",
        width = fig_w_2, 
        height = 2.2,
        units = units)
@@ -902,9 +898,9 @@ layout <- "
 aaab
 "
 
-fig5 <- fig5a +fig5b &
+fig5 <- fig5a + fig5b &
   plot_layout(design = layout) &
-  plot_annotation(tag_levels = "A")&
+  plot_annotation(tag_levels = "A") &
   geom_hline(yintercept = 1.5) &
    geom_hline(yintercept = 11.5) &
     theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"),
@@ -912,9 +908,9 @@ fig5 <- fig5a +fig5b &
 
 
 
-ggsave("figs/fig_5.svg", 
+ggsave("figs/fig_5.wmf", 
        plot = fig5, 
-       device = "svg",
+       device = "wmf",
        width = fig_w_2, 
        height = fig_h * 1.2,
        units = units)
@@ -1043,9 +1039,9 @@ fig6b <- moa_isct_summary %>%
                                          title.position = "top",
                                          title.hjust = 0 )) +
   scale_y_continuous(name = "Number of Articles", 
-                     breaks = seq(0, 40, 5),
-                     minor_breaks = seq(0, 40, 5),
-                     limits = c(0, 42),
+                     breaks = seq(0, 30, 5),
+                     minor_breaks = seq(0, 30, 5),
+                     limits = c(0, 35),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0), name = "MOA") +
   theme_classic() +
@@ -1071,11 +1067,11 @@ fig6c <- diffmoasum %>%
                                          title.position = "top",
                                          title.hjust = 0)) +
   scale_y_continuous(name = "Number of Articles", 
-                     breaks = seq(0, 40, 5),
-                     minor_breaks = seq(0, 40, 5),
-                     limits = c(0, 42),
+                     breaks = seq(0, 30, 5),
+                     minor_breaks = seq(0, 30, 5),
+                     limits = c(0, 35),
                      expand = c(0, 0)) +
-  scale_x_discrete(expand = c(0, 0), name = NULL, labels =NULL) +
+  scale_x_discrete(expand = c(0, 0), name = NULL, labels = NULL) +
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
@@ -1103,12 +1099,23 @@ fig6 <- fig6a + fig6b + fig6c +
   plot_layout(design = layout) +
   plot_annotation(tag_levels = "A") &
     theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"))
-ggsave("figs/fig_6.svg", 
+ggsave("figs/fig_6.wmf", 
        plot = fig6, 
-       device = "svg",
+       device = "wmf",
        width = fig_w_2, 
        height = 3,
        units = units)
+
+```
+
+## relationship between phase_condensed and test_results
+
+
+```{r}
+res <- table(dat$phase_condensed, dat$test_results) %>%
+  fisher.test(simulate.p.value = TRUE)
+test_anno <- paste0("There is no significant association between MOA and cell categorisation\n(",
+                   res$method, ": p = ", round(res$p.value, 3))
 
 ```
 
@@ -1121,15 +1128,23 @@ res <- table(dat$stem_stromal, dat$MOA) %>%
 test_anno <- paste0("There is no significant association between MOA and cell categorisation\n(",
                    res$method, ": p = ", round(res$p.value, 3))
 
+
+# without the regen and multi cats
+dat_sub <- dat %>%
+  filter(stem_stromal != "Regenerative") %>% 
+  filter(stem_stromal != "Multipotent Stromal") %>% droplevels()
+res <- table(dat_sub$stem_stromal, dat_sub$MOA) %>% 
+  fisher.test(simulate.p.value = TRUE)
+
+
 ```
 
 
-## Figure 10 assocation between differentiation2 and MOA
+## Figure 10 assocation between differentiation and MOA
 
 ```{r}
-res <- table(dat$differentiation_2, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
-chisq.test(table(dat$differentiation_2, dat$MOA))$exp;table(dat$differentiation_2, dat$MOA)
-test_anno <- paste0("There is  significant association between MOA and demonstration of differentiation capacity(", res$method, ": p = ", round(res$p.value, 3),") with more studies demonstrating differentiation for Immune MOA, and fewer for Paracrine and Multiple MOA than expected.")
+res <- table(dat$differentiation, dat$MOA) %>% fisher.test(simulate.p.value = TRUE)
+
 ```
 # CD values figures
 
@@ -1209,9 +1224,9 @@ cd_refs_bar <- cd_refs_by_marker %>%
         plot.title = element_text(hjust = 0, size = 4)) +
   coord_flip()
 
-ggsave("figs/fig_x3_cd_refs_bar.svg", 
+ggsave("figs/fig_x3_cd_refs_bar.wmf", 
        plot = cd_refs_bar, 
-       device = "svg",
+       device = "wmf",
        width = fig_w, 
        height = fig_w,
        units = units,
@@ -1261,9 +1276,9 @@ cd_values_point_isct <- cd_dat_summary_values %>%
         # legend.position = c(0.7, 0.8),
         legend.position = "none",
         plot.title = element_text(hjust = 0, size = 4))
-ggsave("figs/fig_x4_cd_values_isct.svg", 
+ggsave("figs/fig_x4_cd_values_isct.wmf", 
        plot = cd_values_point_isct, 
-       device = "svg",
+       device = "wmf",
        width = fig_w_1.5, 
        height = fig_w,
        units = units,
@@ -1300,9 +1315,9 @@ cd_values_point_other <- cd_dat_summary_values %>%
         # legend.position = c(0.7, 0.8),
         legend.position = "none",
         plot.title = element_text(hjust = 0, size = 4))
-ggsave("figs/fig_x5_cd_values_isct.svg", 
+ggsave("figs/fig_x5_cd_values_isct.wmf", 
        plot = cd_values_point_other, 
-       device = "svg",
+       device = "wmf",
        width = fig_w_1.5, 
        height = fig_w,
        units = units,
