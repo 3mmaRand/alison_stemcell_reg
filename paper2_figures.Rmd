@@ -652,9 +652,9 @@ fig4 <- test_bar + phase_test + markerp_bar +
     theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"))
 
 
-ggsave("figs/fig_4.wmf", 
+ggsave("figs/fig_4.svg", 
        plot = fig4, 
-       device = "wmf",
+       device = "svg",
        width = fig_w_2, 
        height = 2.2,
        units = units)
