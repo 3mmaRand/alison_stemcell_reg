@@ -4,7 +4,7 @@ author: "Emma Rand"
 date: "16/01/2020"
 output:
   html_document: default
-  wmf_document: default
+  tiff_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -17,11 +17,12 @@ knitr::opts_chunk$set(echo = FALSE,
 Vector-based files 
 150 to 300 dots per inch (dpi) for initial submission. A higher resolution applies for figures submitted at the revision stage.
 
-Fit on single 8.5" × 11" or A4 paper
+fig size for SCTM
+height no more than 9.6 inches
 Preferably at:
-1 column - 3.5 inches
-1.5 columns - 5.0 inches
-2 columns = 7.3 inches
+1 column - 3.2 inches
+1.5 columns - 4.5 inches
+2 columns = 5.8 inches
 
 The figure title should be at the beginning of the figure legend
 Include the fig id on same page that includes the figure
@@ -33,19 +34,21 @@ library(tidyverse)
 library(grid)
 library(patchwork)
 library(janitor)
+library(showtext)
 
 ```
 
 ```{r}
-
+#showtext_auto()
+conv <- 0.352778
 # palette
 pal <- viridisLite::viridis(6)
 
 # figure saving settings
 units = "in"
-fig_w <- 3.5 # one col
-fig_w_1.5 <- 5 # 1.5 col
-fig_w_2 <- 7.3 # 2 col
+fig_w <- 3.2 # one col
+fig_w_1.5 <- 4.5 # 1.5 col
+fig_w_2 <- 5.8 # 2 col
 fig_h <- fig_w 
 
 
@@ -157,11 +160,12 @@ article_funnel <- to_poly_orig %>%
   scale_y_continuous(breaks = labels$y,
                      labels = labels$step_names2) +
   theme_minimal() +
-  theme(legend.position = "none",
+  theme(text = element_text(family = "Calibri", size = 8),
+        legend.position = "none",
         axis.title = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        axis.text.y  = element_text(size = 7, colour = "black", hjust = 0, face = "plain"),
+        axis.text.y  = element_text(colour = "black", hjust = 0, face = "plain"),
         panel.spacing = unit(0, "lines"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
@@ -179,8 +183,9 @@ data_collection <- fig1b %>%
   facet_grid(. ~ data_element) +
   scale_x_continuous(limits = c(0, 7)) +
   theme_minimal() +
-  theme(legend.position = "none",
-        strip.text = element_text(hjust = 0, size = 5.5, colour = "white", face = "bold"),
+  theme(text = element_text(family = "Calibri", size = 10),
+        legend.position = "none",
+        strip.text = element_text(size = 8, hjust = 0, colour = "white", face = "bold"),
         strip.background = element_rect(fill = pal[1], colour = pal[1], size = 0.05),
         panel.border = element_rect(colour = "black", fill = NA),
         panel.spacing = unit(0, "lines"),
@@ -218,15 +223,20 @@ bbbbbbbbbbbbbbbbbbbb
 
 fig1 <- article_funnel + data_collection + 
   plot_layout(design = layout) +
-  plot_annotation(tag_levels = "A") &
-    theme(plot.tag = element_text(size = 9, hjust = 1, face = "bold"))
+  plot_annotation(tag_levels = "A",
+                  title = "Wilson, Alison, Figure 1. TOP") &
+    theme(plot.tag = element_text(size = 12,
+                                  hjust = 1,
+                                  face = "bold",
+                                  family = "Calibri"),
+        plot.title = element_text(size = 6))
 
 
-ggsave("figs/fig_1.wmf", 
+ggsave("figs/fig_1.tiff", 
        plot = fig1, 
-       device = "wmf",
-       width = fig_w, 
-       height = fig_h*1.6,
+       device = "tiff",
+       width = fig_w_1.5, 
+       height = fig_h*1.8,
        units = units)
 
 ```
@@ -285,7 +295,8 @@ country_bar <- summary_country %>%
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
   theme_classic() +
-  theme(axis.title.y = element_blank(),
+  theme(text = element_text(family = "Calibri"),
+        axis.title.y = element_blank(),
         axis.text.x = element_text(size = 8, colour = "black"),
         axis.ticks.y = element_blank(),
         axis.text.y  = element_text(size = 8, colour = "black"),
@@ -313,7 +324,8 @@ phase_bar <- summary_phase %>%
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
   theme_classic() +
-  theme(axis.title.y = element_blank(),
+  theme(text = element_text(family = "Calibri"),
+        axis.title.y = element_blank(),
         axis.text.x = element_text(size = 8, colour = "black"),
         axis.ticks.y = element_blank(),
         axis.text.y  = element_text(size = 8, colour = "black"),
@@ -339,7 +351,8 @@ indication_bar <- summary_indication %>%
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
   theme_classic() +
-  theme(axis.title.y = element_blank(),
+  theme(text = element_text(family = "Calibri"),
+        axis.title.y = element_blank(),
         axis.text.x = element_text(size = 8, colour = "black"),
         axis.ticks.y = element_blank(),
         axis.text.y  = element_text(size = 8, colour = "black"),
@@ -366,7 +379,8 @@ route_bar <- summary_route %>%
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0)) +
   theme_classic() +
-  theme(axis.title.y = element_blank(),
+  theme(text = element_text(family = "Calibri"),
+        axis.title.y = element_blank(),
         axis.text.x = element_text(size = 8, colour = "black"),
         axis.ticks.y = element_blank(),
         axis.text.y  = element_text(size = 8, colour = "black"),
@@ -402,16 +416,21 @@ cd
 fig2 <- country_bar + phase_bar + route_bar + indication_bar +
   plot_layout(design = layout) +
   plot_annotation(caption = "Number of Articles",
-                  tag_levels = "A")&
-    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"),
-          plot.caption = element_text(size = 9, hjust = 0.5, face = "plain"))
+                  tag_levels = "A",
+                  title = "Wilson, Alison, Figure 2. TOP") &
+    theme(plot.tag = element_text(size = 12,
+                                  hjust = 1,
+                                  face = "bold",
+                                  family = "Calibri"),
+         plot.title = element_text(size = 6),
+         plot.caption.position = "plot",
+         plot.caption = element_text(hjust = 0.5, size = 12))
 
-
-ggsave("figs/fig_2_black.wmf", 
+ggsave("figs/fig_2_black.tiff", 
        plot = fig2, 
-       device = "wmf",
+       device = "tiff",
        width = fig_w_2, 
-       height = fig_h*2,
+       height = fig_h*2.2,
        units = units)
 
 ```
@@ -453,7 +472,7 @@ source_bar <- summary_source %>%
            fill = "black",
            size = 0, 
            width = 0.8) +
-  scale_y_continuous(name = "Number of Articles",
+  scale_y_continuous(name = "No. Articles",
                     breaks = seq(0, 50, 10),
                     minor_breaks = seq(0, 50, 10),
                     limits = c(0, 60),
@@ -525,14 +544,22 @@ aaabbbcccc
 fig3 <- source_bar  + allo_auto_bar + stem_stromal_bar +
   plot_layout(design = layout) +
   plot_annotation(caption = "Source",
-                  tag_levels = "A") &
-    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"),
-          plot.caption = element_text(size = 9, hjust = 0.5, vjust = 1, face = "plain"))
+                  tag_levels = "A",
+                  title = "Wilson, Alison, Figure 3. TOP") &
+    theme(plot.tag = element_text(size = 12, 
+                                  hjust = 0, 
+                                  face = "bold",
+                                  family = "Calibri"),
+          plot.title = element_text(size = 6),
+          plot.caption = element_text(size = 12, 
+                                      hjust = 0.5, 
+                                      vjust = 1, 
+                                      family = "Calibri"))
 
 
-ggsave("figs/fig_3_black.wmf", 
+ggsave("figs/fig_3_black.tiff", 
        plot = fig3, 
-       device = "wmf",
+       device = "tiff",
        width = fig_w_1.5, 
        height = fig_h,
        units = units)
@@ -571,13 +598,13 @@ test_bar <- summary_test %>%
   ggplot(aes(x = test_results, y = n, fill = test_results)) +
   geom_bar(stat = "identity", size = 0) +
   xlab("") +
-  geom_text(aes(y = n + 6, label = pc), size = 3 ) +
+  geom_text(aes(y = n + 7, label = pc), size = 2.5 ) +
   scale_fill_manual(values = rev(pal[1:5]),
                     name = "Test results") +
-  scale_y_continuous(name = "Number of Articles", 
-                     breaks = seq(0, 50, 5),
+  scale_y_continuous(name = "No. Articles", 
+                     breaks = seq(0, 50, 10),
                      minor_breaks = seq(0, 50, 1),
-                     limits = c(0, 53),
+                     limits = c(0, 55),
                      expand = c(0, 0)) +
   scale_x_discrete(expand = c(0, 0), ) +
   theme_classic() +
@@ -585,7 +612,7 @@ test_bar <- summary_test %>%
         axis.text.x = element_text(size = 8, colour = "black"),
         axis.ticks.y = element_blank(),
         axis.text.y  = element_text(size = 8, colour = "black"),
-        plot.margin = margin(t = 0, r = 30),
+        plot.margin = margin(t = 0, r = 20, l = 0),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
@@ -598,7 +625,7 @@ phase_test <- summary_phase_test %>%
   geom_bar(stat = "identity", size = 0, width = 0.8) +
   scale_fill_manual(values = pal,
                     name = NULL) +
-  scale_y_continuous(name = "Number of Articles",
+  scale_y_continuous(name = "No. Articles",
                      breaks = seq(0, 55, 10),
                      minor_breaks = seq(0, 55, 5),
                      limits = c(0, 55),
@@ -623,18 +650,18 @@ markerp_bar <- summary_marker_p_count %>%
                      minor_breaks = seq(0, 12, 2),
                      limits = c(0, 12),
                      expand = c(0, 0)) +
-  scale_x_continuous(name = "Number of markers",
+  scale_x_continuous(name = "No. markers",
                      breaks = seq(0, 11, 1),
                     minor_breaks = seq(0, 12, 2),
                     limits = c(0.5, 12),
                      expand = c(0, 0)) +
   theme_classic() +
-  theme(axis.text.x = element_text(size = 8, colour = "black"),
+  theme(axis.text.x = element_text(size = 6, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
-        plot.margin = margin(t = 0, r = 0, l = 0)) 
+        plot.margin = margin(t = 0, r = 1, l = 0)) 
 
 ```
 
@@ -643,18 +670,23 @@ markerp_bar <- summary_marker_p_count %>%
 ```{r fig_4-layout}
 
 layout <- "
-aaaaaabbbcccc
+aaaaaabbbccccc
 "
 
 fig4 <- test_bar + phase_test + markerp_bar +
   plot_layout(design = layout) +
-  plot_annotation(tag_levels = "A") &
-    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"))
+  plot_annotation(tag_levels = "A",
+                  title = "Wilson, Alison, Figure 4. TOP") &
+    theme(plot.tag = element_text(size = 12,
+                                  hjust = 1,
+                                  face = "bold",
+                                  family = "Calibri"),
+         plot.title = element_text(size = 6))
 
 
-ggsave("figs/fig_4.svg", 
+ggsave("figs/fig_4.tiff", 
        plot = fig4, 
-       device = "svg",
+       device = "tiff",
        width = fig_w_2, 
        height = 2.2,
        units = units)
@@ -868,7 +900,7 @@ fig5b <- test_by_attribute_summary %>%
   geom_bar(aes(x = n, y = marker2, fill = test_status),
            stat = "identity", width = 0.8, size = 0) +
   scale_fill_manual(values =  c("#BABABA", pal[c(3, 5)])) +
-  scale_x_continuous(name = "Number of Articles",
+  scale_x_continuous(name = "No. Articles",
                      breaks = seq(0, 90, 10),
                      minor_breaks = seq(0, 90, 10),
                      limits = c(0, 85),
@@ -900,17 +932,20 @@ aaab
 
 fig5 <- fig5a + fig5b &
   plot_layout(design = layout) &
-  plot_annotation(tag_levels = "A") &
+  plot_annotation(tag_levels = "A",
+                  title = "Wilson, Alison, Figure 5. TOP") &
   geom_hline(yintercept = 1.5) &
    geom_hline(yintercept = 11.5) &
-    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"),
+    theme(plot.tag = element_text(size = 12, 
+                                  hjust = 0,
+                                  face = "bold",
+                                  family = "Calibri"),
+          plot.title = element_text(size = 6),
           plot.margin = margin(0,0,0,0))
 
-
-
-ggsave("figs/fig_5.wmf", 
+ggsave("figs/fig_5.tiff", 
        plot = fig5, 
-       device = "wmf",
+       device = "tiff",
        width = fig_w_2, 
        height = fig_h * 1.2,
        units = units)
@@ -1008,8 +1043,8 @@ fig6a <- functionality %>%
                     guide = guide_legend(nrow = 4,
                                          title.position = "top",
                                          title.hjust = 0 )) +
-  scale_y_continuous(name = "Number of Articles",
-                     breaks = seq(0, 80, 10),
+  scale_y_continuous(name = "No. Articles",
+                     breaks = seq(0, 80, 20),
                      minor_breaks = seq(0, 80, 10),
                      limits = c(0, 85),
                      expand = c(0, 0)) +
@@ -1020,12 +1055,14 @@ fig6a <- functionality %>%
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
+        axis.title = element_text(size = 8, colour = "black"),
         plot.margin = margin(t = 0, r = 30),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
         legend.position = "top",
         legend.text = element_text(size = 8, colour = "black"),
+        legend.title = element_text(size = 8, colour = "black"),
         legend.key.size = unit(0.1, "in")) +
   coord_flip()
 
@@ -1038,7 +1075,7 @@ fig6b <- moa_isct_summary %>%
                     guide = guide_legend(nrow = 4,
                                          title.position = "top",
                                          title.hjust = 0 )) +
-  scale_y_continuous(name = "Number of Articles", 
+  scale_y_continuous(name = "No. Articles", 
                      breaks = seq(0, 30, 5),
                      minor_breaks = seq(0, 30, 5),
                      limits = c(0, 35),
@@ -1047,12 +1084,14 @@ fig6b <- moa_isct_summary %>%
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
+        axis.title = element_text(size = 8, colour = "black"),
         plot.margin = margin(t = 0, r = 0, l = 0),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
         legend.position = "top",
         legend.text = element_text(size = 8, colour = "black"),
+        legend.title = element_text(size = 8, colour = "black"),
         legend.key.size = unit(0.1, "in")) +
   coord_flip()
 
@@ -1066,7 +1105,7 @@ fig6c <- diffmoasum %>%
                     guide = guide_legend(nrow = 4, 
                                          title.position = "top",
                                          title.hjust = 0)) +
-  scale_y_continuous(name = "Number of Articles", 
+  scale_y_continuous(name = "No. Articles", 
                      breaks = seq(0, 30, 5),
                      minor_breaks = seq(0, 30, 5),
                      limits = c(0, 35),
@@ -1075,12 +1114,14 @@ fig6c <- diffmoasum %>%
   theme_classic() +
   theme(axis.text.x = element_text(size = 8, colour = "black"),
         axis.text.y  = element_text(size = 8, colour = "black"),
+        axis.title = element_text(size = 8, colour = "black"),
         plot.margin = margin(t = 0, r = 0, l = 0),
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
         legend.position = "top",
         legend.text = element_text(size = 8, colour = "black"),
+        legend.title = element_text(size = 8, colour = "black"),
         legend.key.size = unit(0.1, "in")) +
   coord_flip()
 
@@ -1097,11 +1138,18 @@ abc
 
 fig6 <- fig6a + fig6b + fig6c +
   plot_layout(design = layout) +
-  plot_annotation(tag_levels = "A") &
-    theme(plot.tag = element_text(size = 9, hjust = 0, face = "bold"))
-ggsave("figs/fig_6.wmf", 
+  plot_annotation(tag_levels = "A",
+                  title = "Wilson, Alison, Figure 6. TOP") &
+    theme(plot.tag = element_text(size = 12,
+                                  hjust = 0,
+                                  face = "bold",
+                                  family = "Calibri"),
+          title = element_text(size = 6))
+
+
+ggsave("figs/fig_6.tiff", 
        plot = fig6, 
-       device = "wmf",
+       device = "tiff",
        width = fig_w_2, 
        height = 3,
        units = units)
@@ -1224,9 +1272,9 @@ cd_refs_bar <- cd_refs_by_marker %>%
         plot.title = element_text(hjust = 0, size = 4)) +
   coord_flip()
 
-ggsave("figs/fig_x3_cd_refs_bar.wmf", 
+ggsave("figs/fig_x3_cd_refs_bar.tiff", 
        plot = cd_refs_bar, 
-       device = "wmf",
+       device = "tiff",
        width = fig_w, 
        height = fig_w,
        units = units,
@@ -1276,9 +1324,9 @@ cd_values_point_isct <- cd_dat_summary_values %>%
         # legend.position = c(0.7, 0.8),
         legend.position = "none",
         plot.title = element_text(hjust = 0, size = 4))
-ggsave("figs/fig_x4_cd_values_isct.wmf", 
+ggsave("figs/fig_x4_cd_values_isct.tiff", 
        plot = cd_values_point_isct, 
-       device = "wmf",
+       device = "tiff",
        width = fig_w_1.5, 
        height = fig_w,
        units = units,
@@ -1315,9 +1363,9 @@ cd_values_point_other <- cd_dat_summary_values %>%
         # legend.position = c(0.7, 0.8),
         legend.position = "none",
         plot.title = element_text(hjust = 0, size = 4))
-ggsave("figs/fig_x5_cd_values_isct.wmf", 
+ggsave("figs/fig_x5_cd_values_isct.tiff", 
        plot = cd_values_point_other, 
-       device = "wmf",
+       device = "tiff",
        width = fig_w_1.5, 
        height = fig_w,
        units = units,
