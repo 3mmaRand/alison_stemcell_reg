@@ -1147,9 +1147,9 @@ fig6 <- fig6a + fig6b + fig6c +
           title = element_text(size = 6))
 
 
-ggsave("figs/fig_6.tiff", 
+ggsave("figs/fig_6.svg", 
        plot = fig6, 
-       device = "tiff",
+       device = "svg",
        width = fig_w_2, 
        height = 3,
        units = units)
